@@ -341,8 +341,6 @@
 
       // Initialize dates
       const today = new Date();
-      const oneWeekAgo = new Date(today);
-      oneWeekAgo.setDate(today.getDate() - 7);
 
       const startDateInput = document.getElementById('startDate');
       const endDateInput = document.getElementById('endDate');
@@ -353,7 +351,7 @@
       const reportStats = document.getElementById('reportStats');
 
       // Set default dates
-      startDateInput.valueAsDate = oneWeekAgo;
+      startDateInput.valueAsDate = today;
       endDateInput.valueAsDate = today;
 
       // Format date as YYYY-MM-DD
