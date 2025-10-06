@@ -402,8 +402,12 @@
             return;
           }
 
-          // Get archived tasks (completed tasks are typically archived)
+          // Get both archived and active tasks (completed tasks may not be archived)
           const archivedTasks = await PluginAPI.getArchivedTasks();
+          const activeTasks = await PluginAPI.getTasks();
+          
+          // Combine all tasks
+          const allTasks = [...archivedTasks, ...activeTasks];
 
           // Group tasks by completion date
           const tasksByDate = {};
@@ -415,8 +419,8 @@
             tasksByDate[date] = [];
           });
 
-          // Process archived tasks
-          archivedTasks.forEach(task => {
+          // Process all tasks (both archived and active)
+          allTasks.forEach(task => {
             if (task.isDone && task.doneOn) {
               const taskDate = new Date(task.doneOn);
               const taskDateStr = formatDate(taskDate);
