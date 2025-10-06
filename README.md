@@ -69,6 +69,73 @@ The Markdown format makes it easy to paste into documentation, notes, or any Mar
 - Super Productivity version 14.0.0 or higher
 - Modern web browser with clipboard API support
 
+## Development
+
+### Building the Plugin
+
+```bash
+# Build the plugin zip file
+make build
+
+# Clean up generated files
+make clean
+
+# Show all available commands
+make help
+```
+
+### Creating a Release
+
+To create a new release:
+
+1. **Update the version** in `date-range-reporter/manifest.json`
+2. **Commit your changes**:
+   ```bash
+   git add .
+   git commit -m "Release v1.x.x"
+   git push
+   ```
+3. **Run the release command**:
+   ```bash
+   make release
+   ```
+
+The `make release` command will automatically:
+- ✅ Verify prerequisites (GitHub CLI installed, clean working directory)
+- 📦 Build the plugin zip file
+- 🏷️ Create a git tag based on the version in manifest.json
+- 🚀 Push the tag to GitHub
+- 🎉 Create a GitHub release with the zip file attached
+
+#### Prerequisites for Releases
+
+- GitHub CLI (`gh`) installed: `brew install gh`
+- GitHub CLI authenticated: `gh auth login`
+- Write access to the repository
+- Clean working directory (all changes committed)
+
+#### Version Numbering
+
+Follow [Semantic Versioning](https://semver.org/):
+- `v1.0.0` - Major release (breaking changes)
+- `v1.1.0` - Minor release (new features, backwards compatible)
+- `v1.0.1` - Patch release (bug fixes)
+
+#### Troubleshooting Releases
+
+**Tag already exists:**
+```bash
+git tag -d v1.0.0
+git push --delete origin v1.0.0
+make release
+```
+
+**Update an existing release:**
+```bash
+make build
+gh release upload v1.0.0 date-range-reporter.zip --clobber
+```
+
 ## Plugin Files
 
 - `manifest.json` - Plugin configuration
@@ -79,7 +146,7 @@ The Markdown format makes it easy to paste into documentation, notes, or any Mar
 
 ## Version
 
-1.0.0
+1.1.0
 
 ## Author
 
@@ -88,3 +155,4 @@ Super Productivity Community
 ## License
 
 This plugin is provided as-is for use with Super Productivity.
+
