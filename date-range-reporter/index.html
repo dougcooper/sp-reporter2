@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Date Range Reporter</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+        color: #333;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 24px;
+        color: #1976d2;
+      }
+
+      .input-section {
+        margin-bottom: 24px;
+        padding: 16px;
+        background: #f9f9f9;
+        border-radius: 6px;
+      }
+
+      .input-group {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .input-field {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        color: #555;
+      }
+
+      input[type="date"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      input[type="date"]:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+      }
+
+      button {
+        background: #1976d2;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+
+      button:hover {
+        background: #1565c0;
+      }
+
+      button:active {
+        background: #0d47a1;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .secondary-btn {
+        background: #757575;
+      }
+
+      .secondary-btn:hover {
+        background: #616161;
+      }
+
+      .report-section {
+        margin-top: 24px;
+      }
+
+      .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .report-stats {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .report-content {
+        background: #fafafa;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 16px;
+        min-height: 200px;
+        max-height: 500px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .report-content:empty::before {
+        content: 'No report generated yet. Select a date range and click "Generate Report".';
+        color: #999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      .date-section {
+        margin-bottom: 16px;
+      }
+
+      .date-header {
+        font-weight: bold;
+        color: #1976d2;
+        margin-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 2px solid #1976d2;
+      }
+
+      .task-item {
+        padding-left: 16px;
+        margin: 4px 0;
+      }
+
+      .no-tasks {
+        padding-left: 16px;
+        color: #999;
+        font-style: italic;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+
+      .error {
+        background: #ffebee;
+        color: #c62828;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        border-left: 4px solid #c62828;
+      }
+
+      .info {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        border-left: 4px solid #1976d2;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📊 Date Range Task Reporter</h1>
+
+      <div class="info">
+        Select a date range to generate a report of all tasks completed during that period.
+      </div>
+
+      <div class="input-section">
+        <div class="input-group">
+          <div class="input-field">
+            <label for="startDate">Start Date</label>
+            <input type="date" id="startDate" />
+          </div>
+          <div class="input-field">
+            <label for="endDate">End Date</label>
+            <input type="date" id="endDate" />
+          </div>
+          <button id="generateBtn">Generate Report</button>
+        </div>
+      </div>
+
+      <div class="report-section" id="reportSection" style="display: none;">
+        <div class="report-header">
+          <div class="report-stats" id="reportStats"></div>
+          <button id="copyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+        </div>
+        <div class="report-content" id="reportContent"></div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize dates
+      const today = new Date();
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(today.getDate() - 7);
+
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      const generateBtn = document.getElementById('generateBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const reportSection = document.getElementById('reportSection');
+      const reportContent = document.getElementById('reportContent');
+      const reportStats = document.getElementById('reportStats');
+
+      // Set default dates
+      startDateInput.valueAsDate = oneWeekAgo;
+      endDateInput.valueAsDate = today;
+
+      // Format date as YYYY-MM-DD
+      function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      // Format date for display (e.g., "Monday, January 1, 2024")
+      function formatDateDisplay(dateStr) {
+        const date = new Date(dateStr + 'T00:00:00');
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+      }
+
+      // Get all dates in range
+      function getDateRange(startDate, endDate) {
+        const dates = [];
+        const currentDate = new Date(startDate);
+        const end = new Date(endDate);
+
+        while (currentDate <= end) {
+          dates.push(formatDate(currentDate));
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return dates;
+      }
+
+      // Generate report
+      async function generateReport() {
+        try {
+          generateBtn.disabled = true;
+          generateBtn.textContent = 'Generating...';
+
+          const startDate = new Date(startDateInput.value + 'T00:00:00');
+          const endDate = new Date(endDateInput.value + 'T23:59:59');
+
+          if (startDate > endDate) {
+            PluginAPI.showSnack({
+              msg: 'Start date must be before or equal to end date',
+              type: 'ERROR',
+            });
+            return;
+          }
+
+          // Get archived tasks (completed tasks are typically archived)
+          const archivedTasks = await PluginAPI.getArchivedTasks();
+
+          // Group tasks by completion date
+          const tasksByDate = {};
+          let totalTasks = 0;
+
+          // Get all dates in range
+          const dateRange = getDateRange(startDateInput.value, endDateInput.value);
+          dateRange.forEach(date => {
+            tasksByDate[date] = [];
+          });
+
+          // Process archived tasks
+          archivedTasks.forEach(task => {
+            if (task.isDone && task.doneOn) {
+              const taskDate = new Date(task.doneOn);
+              const taskDateStr = formatDate(taskDate);
+
+              // Check if task is in date range
+              if (taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate)) {
+                if (!tasksByDate[taskDateStr]) {
+                  tasksByDate[taskDateStr] = [];
+                }
+                tasksByDate[taskDateStr].push(task);
+                totalTasks++;
+              }
+            }
+          });
+
+          // Generate report text
+          let reportText = `Task Completion Report\n`;
+          reportText += `Date Range: ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}\n`;
+          reportText += `Generated: ${new Date().toLocaleString()}\n`;
+          reportText += `Total Tasks Completed: ${totalTasks}\n`;
+          reportText += `\n${'='.repeat(80)}\n\n`;
+
+          // Sort dates
+          const sortedDates = Object.keys(tasksByDate).sort();
+
+          sortedDates.forEach(dateStr => {
+            const tasks = tasksByDate[dateStr];
+            reportText += `${formatDateDisplay(dateStr)}\n`;
+            reportText += `${'-'.repeat(80)}\n`;
+
+            if (tasks.length === 0) {
+              reportText += `  No tasks completed\n`;
+            } else {
+              tasks.forEach((task, index) => {
+                const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateStr]
+                  ? ` (${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)`
+                  : '';
+                reportText += `  ${index + 1}. ${task.title}${timeSpent}\n`;
+              });
+            }
+            reportText += `\n`;
+          });
+
+          // Update UI
+          reportContent.textContent = reportText;
+          reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${sortedDates.length} day${sortedDates.length !== 1 ? 's' : ''}`;
+          reportSection.style.display = 'block';
+
+          PluginAPI.showSnack({
+            msg: `Report generated with ${totalTasks} completed tasks`,
+            type: 'SUCCESS',
+          });
+
+        } catch (error) {
+          console.error('Error generating report:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to generate report: ' + error.message,
+            type: 'ERROR',
+          });
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.textContent = 'Generate Report';
+        }
+      }
+
+      // Copy to clipboard
+      async function copyToClipboard() {
+        try {
+          const text = reportContent.textContent;
+          await navigator.clipboard.writeText(text);
+
+          PluginAPI.showSnack({
+            msg: 'Report copied to clipboard!',
+            type: 'SUCCESS',
+            ico: 'content_copy',
+          });
+        } catch (error) {
+          console.error('Error copying to clipboard:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to copy to clipboard',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Event listeners
+      generateBtn.addEventListener('click', generateReport);
+      copyBtn.addEventListener('click', copyToClipboard);
+
+      // Allow Enter key to generate report
+      startDateInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') generateReport();
+      });
+
+      endDateInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') generateReport();
+      });
+    </script>
+  </body>
+</html>
