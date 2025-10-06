@@ -5,69 +5,78 @@ This document describes how to create a new release of the Date Range Reporter p
 ## Prerequisites
 
 - Write access to the repository
+- GitHub CLI installed (`gh`) - [Install guide](https://cli.github.com/)
 - All changes committed and pushed to `main`/`master`
 
 ## Creating a Release
 
-### Method 1: Using GitHub CLI (Recommended)
+### Recommended Method: Single Command
 
 ```bash
 # Make sure you're on the main branch with latest changes
 git checkout main
 git pull
 
-# Create and push a new tag
-git tag -a v1.0.0 -m "Release v1.0.0 - Initial release"
-git push origin v1.0.0
-
-# Create the release using GitHub CLI
-gh release create v1.0.0 \
-  --title "v1.0.0 - Initial Release" \
-  --notes "Initial release of Date Range Reporter plugin"
-```
-
-The GitHub Action will automatically:
-1. Build the plugin
-2. Attach `date-range-reporter.zip` to the release
-
-### Method 2: Using GitHub Web Interface
-
-1. **Go to your repository on GitHub**
-
-2. **Click on "Releases"** in the right sidebar
-
-3. **Click "Create a new release"** or "Draft a new release"
-
-4. **Choose/Create a tag:**
-   - Click "Choose a tag"
-   - Type a new version (e.g., `v1.0.0`)
-   - Click "Create new tag: v1.0.0 on publish"
-
-5. **Fill in release details:**
-   - **Release title:** e.g., "v1.0.0 - Initial Release"
-   - **Description:** Add release notes, features, bug fixes, etc.
-
-6. **Click "Publish release"**
-
-7. **Wait for GitHub Action:**
-   - The workflow will automatically run
-   - The `date-range-reporter.zip` will be attached to the release
-   - Check the "Actions" tab to monitor progress
-
-### Method 3: Manual Release with Asset
-
-If you want to manually upload the zip:
-
-```bash
-# Build locally
-make build
-
-# Create release using GitHub CLI and upload the zip
+# Build, tag, and create release in one go
+make build && \
+git tag -a v1.0.0 -m "Release v1.0.0" && \
+git push origin v1.0.0 && \
 gh release create v1.0.0 \
   --title "v1.0.0 - Initial Release" \
   --notes "Initial release of Date Range Reporter plugin" \
   date-range-reporter.zip
 ```
+
+This will:
+1. Build the plugin zip file
+2. Create and push the git tag
+3. Create the GitHub release
+4. Upload the zip file to the release
+
+### Alternative: Step by Step
+
+```bash
+# Step 1: Build the plugin
+make build
+
+# Step 2: Create and push tag
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+
+# Step 3: Create release and upload zip
+gh release create v1.0.0 \
+  --title "v1.0.0 - Initial Release" \
+  --notes "Initial release of Date Range Reporter plugin" \
+  date-range-reporter.zip
+```
+
+### Using GitHub Web Interface
+
+1. **Build the plugin locally:**
+   ```bash
+   make build
+   ```
+
+2. **Go to your repository on GitHub**
+
+3. **Click on "Releases"** in the right sidebar
+
+4. **Click "Draft a new release"**
+
+5. **Choose/Create a tag:**
+   - Click "Choose a tag"
+   - Type a new version (e.g., `v1.0.0`)
+   - Click "Create new tag: v1.0.0 on publish"
+
+6. **Fill in release details:**
+   - **Release title:** e.g., "v1.0.0 - Initial Release"
+   - **Description:** Add release notes, features, bug fixes, etc.
+
+7. **Attach the zip file:**
+   - Drag and drop `date-range-reporter.zip` into the assets area
+   - Or click to browse and select the file
+
+8. **Click "Publish release"**
 
 ## Version Numbering
 
@@ -118,10 +127,18 @@ Before creating a release:
 
 ## Troubleshooting
 
-**Release doesn't have zip file attached:**
-- Check the Actions tab for workflow errors
-- Ensure the workflow has completed successfully
-- Try re-running the workflow
+**GitHub CLI not installed:**
+```bash
+# macOS
+brew install gh
+
+# Or download from: https://cli.github.com/
+```
+
+**Need to authenticate GitHub CLI:**
+```bash
+gh auth login
+```
 
 **Tag already exists:**
 ```bash
@@ -134,4 +151,13 @@ git push --delete origin v1.0.0
 # Create new tag
 git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
+```
+
+**Update an existing release:**
+```bash
+# Build new version
+make build
+
+# Upload (replace existing) zip to release
+gh release upload v1.0.0 date-range-reporter.zip --clobber
 ```
