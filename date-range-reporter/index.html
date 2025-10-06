@@ -432,32 +432,31 @@
             }
           });
 
-          // Generate report text
-          let reportText = `Task Completion Report\n`;
-          reportText += `Date Range: ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}\n`;
-          reportText += `Generated: ${new Date().toLocaleString()}\n`;
-          reportText += `Total Tasks Completed: ${totalTasks}\n`;
-          reportText += `\n${'='.repeat(80)}\n\n`;
+          // Generate report in Markdown format
+          let reportText = `# Task Completion Report\n\n`;
+          reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
+          reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
+          reportText += `**Total Tasks Completed:** ${totalTasks}\n\n`;
+          reportText += `---\n\n`;
 
           // Sort dates
           const sortedDates = Object.keys(tasksByDate).sort();
 
           sortedDates.forEach(dateStr => {
             const tasks = tasksByDate[dateStr];
-            reportText += `${formatDateDisplay(dateStr)}\n`;
-            reportText += `${'-'.repeat(80)}\n`;
+            reportText += `## ${formatDateDisplay(dateStr)}\n\n`;
 
             if (tasks.length === 0) {
-              reportText += `  No tasks completed\n`;
+              reportText += `*No tasks completed*\n\n`;
             } else {
               tasks.forEach((task, index) => {
                 const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateStr]
-                  ? ` (${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)`
+                  ? ` *(${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)*`
                   : '';
-                reportText += `  ${index + 1}. ${task.title}${timeSpent}\n`;
+                reportText += `- ${task.title}${timeSpent}\n`;
               });
+              reportText += `\n`;
             }
-            reportText += `\n`;
           });
 
           // Update UI

@@ -25,39 +25,43 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 2. Select your desired start and end dates
 3. Click "Generate Report"
 4. Review the report showing tasks grouped by completion date
-5. Click "Copy to Clipboard" to copy the entire report
+5. Click "Copy to Clipboard" to copy the entire report in Markdown format
 
 ## Report Format
 
-The generated report includes:
+The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
 - Total number of completed tasks
-- Tasks grouped by completion date
+- Tasks grouped by completion date with bullet points
 - Time spent on each task (when tracked)
 
 Example report:
+```markdown
+# Task Completion Report
+
+**Date Range:** Monday, October 1, 2024 - Monday, October 7, 2024  
+**Generated:** 10/7/2024, 3:30:00 PM  
+**Total Tasks Completed:** 5
+
+---
+
+## Monday, October 1, 2024
+
+- Complete project proposal *(45 min)*
+- Review pull requests *(30 min)*
+
+## Tuesday, October 2, 2024
+
+*No tasks completed*
+
+## Wednesday, October 3, 2024
+
+- Write documentation *(120 min)*
+- Fix bug in authentication *(60 min)*
+- Team meeting notes *(15 min)*
 ```
-Task Completion Report
-Date Range: Monday, October 1, 2024 - Monday, October 7, 2024
-Generated: 10/7/2024, 3:30:00 PM
-Total Tasks Completed: 5
 
-================================================================================
-
-Monday, October 1, 2024
---------------------------------------------------------------------------------
-  1. Complete project proposal (45 min)
-  2. Review pull requests (30 min)
-
-Tuesday, October 2, 2024
---------------------------------------------------------------------------------
-  No tasks completed
-
-Wednesday, October 3, 2024
---------------------------------------------------------------------------------
-  1. Write documentation (120 min)
-  2. Fix bug in authentication (60 min)
-  3. Team meeting notes (15 min)
+The Markdown format makes it easy to paste into documentation, notes, or any Markdown-compatible application.
 ```
 
 ## Requirements
