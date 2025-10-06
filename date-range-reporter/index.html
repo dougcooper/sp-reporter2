@@ -119,6 +119,26 @@
         box-shadow: 0 0 0 3px var(--shadow);
       }
 
+      .checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent-color);
+      }
+
+      .checkbox-field label {
+        margin-bottom: 0;
+        cursor: pointer;
+        user-select: none;
+      }
+
       button {
         background: var(--accent-color);
         color: white;
@@ -281,6 +301,10 @@
           </div>
           <button id="generateBtn">Generate Report</button>
         </div>
+        <div class="checkbox-field">
+          <input type="checkbox" id="excludeEmptyDates" checked />
+          <label for="excludeEmptyDates">Exclude dates with no completed tasks</label>
+        </div>
       </div>
 
       <div class="report-section" id="reportSection" style="display: none;">
@@ -349,6 +373,7 @@
       const reportSection = document.getElementById('reportSection');
       const reportContent = document.getElementById('reportContent');
       const reportStats = document.getElementById('reportStats');
+      const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
 
       // Set default dates
       startDateInput.valueAsDate = today;
@@ -444,7 +469,13 @@
           // Sort dates
           const sortedDates = Object.keys(tasksByDate).sort();
 
-          sortedDates.forEach(dateStr => {
+          // Filter out empty dates if checkbox is checked
+          const excludeEmpty = excludeEmptyDatesCheckbox.checked;
+          const datesToShow = excludeEmpty 
+            ? sortedDates.filter(dateStr => tasksByDate[dateStr].length > 0)
+            : sortedDates;
+
+          datesToShow.forEach(dateStr => {
             const tasks = tasksByDate[dateStr];
             reportText += `## ${formatDateDisplay(dateStr)}\n\n`;
 
@@ -463,7 +494,7 @@
 
           // Update UI
           reportContent.textContent = reportText;
-          reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${sortedDates.length} day${sortedDates.length !== 1 ? 's' : ''}`;
+          reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${datesToShow.length} day${datesToShow.length !== 1 ? 's' : ''}`;
           reportSection.style.display = 'block';
 
           PluginAPI.showSnack({
