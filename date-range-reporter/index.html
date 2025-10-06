@@ -372,8 +372,8 @@
       // Get all dates in range
       function getDateRange(startDate, endDate) {
         const dates = [];
-        const currentDate = new Date(startDate);
-        const end = new Date(endDate);
+        const currentDate = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T00:00:00');
 
         while (currentDate <= end) {
           dates.push(formatDate(currentDate));
