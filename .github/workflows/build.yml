@@ -1,0 +1,26 @@
+name: Build Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Build plugin
+      run: make build
+    
+    - name: Upload plugin artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: date-range-reporter-plugin
+        path: date-range-reporter.zip
+        retention-days: 90
