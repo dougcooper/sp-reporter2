@@ -287,6 +287,202 @@
         color: #90caf9;
         border-left-color: #42a5f5;
       }
+
+      .saved-reports-section {
+        margin-top: 24px;
+        padding: 16px;
+        background: var(--bg-tertiary);
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+      }
+
+      .saved-reports-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .saved-reports-header h2 {
+        font-size: 18px;
+        color: var(--text-primary);
+      }
+
+      .saved-reports-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .saved-report-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .saved-report-item:hover {
+        background: var(--bg-primary);
+        border-color: var(--accent-color);
+      }
+
+      .saved-report-item.selected {
+        background: var(--bg-primary);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px var(--shadow);
+      }
+
+      .report-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent-color);
+      }
+
+      .report-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .report-name {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .report-meta {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .report-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .icon-btn {
+        background: transparent;
+        color: var(--text-secondary);
+        padding: 6px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 18px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        line-height: 1;
+      }
+
+      .icon-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--accent-color);
+      }
+
+      .icon-btn.delete:hover {
+        color: #f44336;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 32px;
+        color: var(--text-tertiary);
+        font-style: italic;
+      }
+
+      .bulk-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .bulk-actions button {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 800px;
+        max-height: 80vh;
+        width: 90%;
+        box-shadow: 0 4px 16px var(--shadow-strong);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .modal-header h3 {
+        font-size: 18px;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 16px;
+      }
+
+      .modal-report-content {
+        background: var(--bg-code);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 16px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      .close-btn {
+        background: transparent;
+        color: var(--text-secondary);
+        padding: 4px 8px;
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .close-btn:hover {
+        color: var(--text-primary);
+      }
     </style>
   </head>
   <body>
@@ -319,12 +515,45 @@
         </div>
       </div>
 
+      <div class="saved-reports-section">
+        <div class="saved-reports-header">
+          <h2>💾 Saved Reports</h2>
+          <div class="bulk-actions" id="bulkActions" style="display: none;">
+            <span id="selectedCount" style="font-size: 13px; color: var(--text-secondary);"></span>
+            <button id="deleteSelectedBtn" class="secondary-btn">🗑️ Delete Selected</button>
+          </div>
+        </div>
+        <div id="savedReportsList" class="saved-reports-list">
+          <div class="empty-state">No saved reports yet. Generate a report and save it to see it here.</div>
+        </div>
+      </div>
+
       <div class="report-section" id="reportSection" style="display: none;">
         <div class="report-header">
           <div class="report-stats" id="reportStats"></div>
-          <button id="copyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+          <div class="button-group">
+            <button id="saveBtn" class="secondary-btn">💾 Save Report</button>
+            <button id="copyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+          </div>
         </div>
         <textarea class="report-content" id="reportContent" placeholder="No report generated yet. Select a date range and click &quot;Generate Report&quot;."></textarea>
+      </div>
+    </div>
+
+    <!-- Modal for viewing saved reports -->
+    <div id="viewModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalReportName"></h3>
+          <button class="icon-btn close-btn" onclick="closeViewModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div id="modalReportContent" class="modal-report-content"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="modalCopyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+          <button onclick="closeViewModal()">Close</button>
+        </div>
       </div>
     </div>
 
@@ -382,17 +611,245 @@
       const endDateInput = document.getElementById('endDate');
       const generateBtn = document.getElementById('generateBtn');
       const copyBtn = document.getElementById('copyBtn');
+      const saveBtn = document.getElementById('saveBtn');
       const reportSection = document.getElementById('reportSection');
       const reportContent = document.getElementById('reportContent');
       const reportStats = document.getElementById('reportStats');
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
       const includeNotesCheckbox = document.getElementById('includeNotes');
+      const savedReportsList = document.getElementById('savedReportsList');
+      const bulkActions = document.getElementById('bulkActions');
+      const selectedCount = document.getElementById('selectedCount');
+      const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+      const viewModal = document.getElementById('viewModal');
+      const modalReportName = document.getElementById('modalReportName');
+      const modalReportContent = document.getElementById('modalReportContent');
+      const modalCopyBtn = document.getElementById('modalCopyBtn');
+
+      let savedReports = [];
+      let currentReport = null;
+      let selectedReportIds = new Set();
 
       // Set default dates to past seven days (including today)
       const sevenDaysAgo = new Date(today);
       sevenDaysAgo.setDate(today.getDate() - 6);
       startDateInput.valueAsDate = sevenDaysAgo;
       endDateInput.valueAsDate = today;
+
+      // Load saved reports on startup
+      loadSavedReports();
+
+      // Persistence functions
+      async function loadSavedReports() {
+        try {
+          const data = await PluginAPI.loadPluginData();
+          savedReports = data?.savedReports || [];
+          renderSavedReports();
+        } catch (error) {
+          console.error('Error loading saved reports:', error);
+          savedReports = [];
+          renderSavedReports();
+        }
+      }
+
+      async function saveSavedReports() {
+        try {
+          await PluginAPI.savePluginData({ savedReports });
+        } catch (error) {
+          console.error('Error saving reports:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to save reports',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      function renderSavedReports() {
+        if (savedReports.length === 0) {
+          savedReportsList.innerHTML = '<div class="empty-state">No saved reports yet. Generate a report and save it to see it here.</div>';
+          return;
+        }
+
+        savedReportsList.innerHTML = savedReports
+          .sort((a, b) => b.savedAt - a.savedAt)
+          .map(report => `
+            <div class="saved-report-item" data-id="${report.id}">
+              <input type="checkbox" class="report-checkbox" data-id="${report.id}" onclick="event.stopPropagation(); toggleReportSelection('${report.id}')">
+              <div class="report-info" onclick="viewReport('${report.id}')">
+                <div class="report-name">${escapeHtml(report.name)}</div>
+                <div class="report-meta">${formatDateRange(report.startDate, report.endDate)} • ${report.totalTasks} tasks • Saved ${formatRelativeTime(report.savedAt)}</div>
+              </div>
+              <div class="report-actions">
+                <button class="icon-btn" onclick="event.stopPropagation(); viewReport('${report.id}')" title="View report">👁️</button>
+                <button class="icon-btn delete" onclick="event.stopPropagation(); deleteReport('${report.id}')" title="Delete report">🗑️</button>
+              </div>
+            </div>
+          `).join('');
+        
+        updateBulkActions();
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function formatDateRange(startDate, endDate) {
+        if (startDate === endDate) {
+          return new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        return `${new Date(startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      }
+
+      function formatRelativeTime(timestamp) {
+        const now = Date.now();
+        const diff = now - timestamp;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return 'just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+        return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+
+      async function saveReport() {
+        if (!currentReport) {
+          PluginAPI.showSnack({
+            msg: 'No report to save',
+            type: 'ERROR',
+          });
+          return;
+        }
+
+        const name = prompt('Enter a name for this report:', `Report ${formatDateRange(currentReport.startDate, currentReport.endDate)}`);
+        if (!name || name.trim() === '') {
+          return;
+        }
+
+        const newReport = {
+          id: `report-${Date.now()}`,
+          name: name.trim(),
+          startDate: currentReport.startDate,
+          endDate: currentReport.endDate,
+          content: currentReport.content,
+          totalTasks: currentReport.totalTasks,
+          savedAt: Date.now(),
+        };
+
+        savedReports.push(newReport);
+        await saveSavedReports();
+        renderSavedReports();
+
+        PluginAPI.showSnack({
+          msg: 'Report saved successfully!',
+          type: 'SUCCESS',
+          ico: 'save',
+        });
+      }
+
+      function viewReport(reportId) {
+        const report = savedReports.find(r => r.id === reportId);
+        if (!report) return;
+
+        modalReportName.textContent = report.name;
+        modalReportContent.textContent = report.content;
+        viewModal.classList.add('show');
+      }
+
+      function closeViewModal() {
+        viewModal.classList.remove('show');
+      }
+
+      async function deleteReport(reportId) {
+        if (!confirm('Are you sure you want to delete this report?')) {
+          return;
+        }
+
+        savedReports = savedReports.filter(r => r.id !== reportId);
+        selectedReportIds.delete(reportId);
+        await saveSavedReports();
+        renderSavedReports();
+
+        PluginAPI.showSnack({
+          msg: 'Report deleted',
+          type: 'SUCCESS',
+        });
+      }
+
+      function toggleReportSelection(reportId) {
+        if (selectedReportIds.has(reportId)) {
+          selectedReportIds.delete(reportId);
+        } else {
+          selectedReportIds.add(reportId);
+        }
+        updateBulkActions();
+        updateCheckboxes();
+      }
+
+      function updateCheckboxes() {
+        document.querySelectorAll('.report-checkbox').forEach(checkbox => {
+          checkbox.checked = selectedReportIds.has(checkbox.dataset.id);
+        });
+      }
+
+      function updateBulkActions() {
+        const count = selectedReportIds.size;
+        if (count > 0) {
+          bulkActions.style.display = 'flex';
+          selectedCount.textContent = `${count} selected`;
+        } else {
+          bulkActions.style.display = 'none';
+        }
+      }
+
+      async function deleteSelectedReports() {
+        const count = selectedReportIds.size;
+        if (count === 0) return;
+
+        if (!confirm(`Are you sure you want to delete ${count} report${count > 1 ? 's' : ''}?`)) {
+          return;
+        }
+
+        savedReports = savedReports.filter(r => !selectedReportIds.has(r.id));
+        selectedReportIds.clear();
+        await saveSavedReports();
+        renderSavedReports();
+
+        PluginAPI.showSnack({
+          msg: `${count} report${count > 1 ? 's' : ''} deleted`,
+          type: 'SUCCESS',
+        });
+      }
+
+      async function copyModalReport() {
+        try {
+          const text = modalReportContent.textContent;
+          await navigator.clipboard.writeText(text);
+
+          PluginAPI.showSnack({
+            msg: 'Report copied to clipboard!',
+            type: 'SUCCESS',
+            ico: 'content_copy',
+          });
+        } catch (error) {
+          console.error('Error copying to clipboard:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to copy to clipboard',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Make functions globally accessible for onclick handlers
+      window.viewReport = viewReport;
+      window.closeViewModal = closeViewModal;
+      window.deleteReport = deleteReport;
+      window.toggleReportSelection = toggleReportSelection;
+      window.copyModalReport = copyModalReport;
 
       // Format date as YYYY-MM-DD
       function formatDate(date) {
@@ -520,6 +977,14 @@
           reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${datesToShow.length} day${datesToShow.length !== 1 ? 's' : ''}`;
           reportSection.style.display = 'block';
 
+          // Store current report for saving
+          currentReport = {
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+            content: reportText,
+            totalTasks: totalTasks,
+          };
+
           PluginAPI.showSnack({
             msg: `Report generated with ${totalTasks} completed tasks`,
             type: 'SUCCESS',
@@ -560,6 +1025,16 @@
       // Event listeners
       generateBtn.addEventListener('click', generateReport);
       copyBtn.addEventListener('click', copyToClipboard);
+      saveBtn.addEventListener('click', saveReport);
+      deleteSelectedBtn.addEventListener('click', deleteSelectedReports);
+      modalCopyBtn.addEventListener('click', copyModalReport);
+
+      // Close modal when clicking outside
+      viewModal.addEventListener('click', (e) => {
+        if (e.target === viewModal) {
+          closeViewModal();
+        }
+      });
 
       // Allow Enter key to generate report
       startDateInput.addEventListener('keypress', (e) => {
