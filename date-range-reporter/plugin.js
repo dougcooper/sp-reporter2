@@ -4,7 +4,7 @@
 PluginAPI.registerHeaderButton({
   id: 'date-range-reporter-btn',
   label: 'Task Report',
-  icon: 'calendar_month',
+  icon: 'summarize',
   onClick: () => {
     PluginAPI.showIndexHtmlAsView();
   },

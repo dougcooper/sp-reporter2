@@ -1,12 +1,12 @@
 {
   "id": "date-range-reporter",
   "name": "Date Range Reporter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Generate reports of completed tasks within a specified date range",
   "manifestVersion": 1,
   "minSupVersion": "14.0.0",
   "author": "Super Productivity Community",
   "icon": "icon.svg",
   "iFrame": true,
-  "sidePanel": false
+  "sidePanel": true
 }
