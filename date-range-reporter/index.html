@@ -388,8 +388,10 @@
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
       const includeNotesCheckbox = document.getElementById('includeNotes');
 
-      // Set default dates
-      startDateInput.valueAsDate = today;
+      // Set default dates to past seven days (including today)
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(today.getDate() - 6);
+      startDateInput.valueAsDate = sevenDaysAgo;
       endDateInput.valueAsDate = today;
 
       // Format date as YYYY-MM-DD
