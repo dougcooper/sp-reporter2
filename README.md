@@ -9,6 +9,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 - 📋 Copy report to clipboard with one click
 - ⏱️ Shows time spent on tasks (when available)
 - 📈 Displays task completion statistics
+- 📝 Optional inclusion of task notes in reports
 
 ## Installation
 
@@ -34,6 +35,7 @@ The generated report is formatted in Markdown and includes:
 - Total number of completed tasks
 - Tasks grouped by completion date with bullet points
 - Time spent on each task (when tracked)
+- Optional task notes (when enabled)
 
 Example report:
 ```markdown
@@ -49,6 +51,7 @@ Example report:
 
 - Complete project proposal *(45 min)*
 - Review pull requests *(30 min)*
+  Reviewed PRs #123 and #124, left feedback on both
 
 ## Tuesday, October 2, 2024
 
@@ -57,6 +60,7 @@ Example report:
 ## Wednesday, October 3, 2024
 
 - Write documentation *(120 min)*
+  Updated API docs and added examples for new endpoints
 - Fix bug in authentication *(60 min)*
 - Team meeting notes *(15 min)*
 ```
