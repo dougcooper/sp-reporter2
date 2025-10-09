@@ -6,6 +6,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed within the selected period
+- ✏️ Edit the generated report before copying or saving
 - 📋 Copy report to clipboard with one click
 - ⏱️ Shows time spent on tasks (when available)
 - 📈 Displays task completion statistics
@@ -26,7 +27,8 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 2. Select your desired start and end dates
 3. Click "Generate Report"
 4. Review the report showing tasks grouped by completion date
-5. Click "Copy to Clipboard" to copy the entire report in Markdown format
+5. **Edit the report** as needed - add comments, modify content, or reorganize tasks
+6. Click "Copy to Clipboard" to copy the edited report in Markdown format
 
 ## Report Format
 
@@ -150,7 +152,7 @@ gh release upload v1.0.0 date-range-reporter.zip --clobber
 
 ## Version
 
-1.1.0
+1.2.0
 
 ## Author
 
