@@ -305,6 +305,10 @@
           <input type="checkbox" id="excludeEmptyDates" checked />
           <label for="excludeEmptyDates">Exclude dates with no completed tasks</label>
         </div>
+        <div class="checkbox-field">
+          <input type="checkbox" id="includeNotes" />
+          <label for="includeNotes">Include notes for each task</label>
+        </div>
       </div>
 
       <div class="report-section" id="reportSection" style="display: none;">
@@ -374,6 +378,7 @@
       const reportContent = document.getElementById('reportContent');
       const reportStats = document.getElementById('reportStats');
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
+      const includeNotesCheckbox = document.getElementById('includeNotes');
 
       // Set default dates
       startDateInput.valueAsDate = today;
@@ -471,6 +476,7 @@
 
           // Filter out empty dates if checkbox is checked
           const excludeEmpty = excludeEmptyDatesCheckbox.checked;
+          const includeNotes = includeNotesCheckbox.checked;
           const datesToShow = excludeEmpty 
             ? sortedDates.filter(dateStr => tasksByDate[dateStr].length > 0)
             : sortedDates;
@@ -487,6 +493,13 @@
                   ? ` *(${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)*`
                   : '';
                 reportText += `- ${task.title}${timeSpent}\n`;
+                
+                // Include notes if checkbox is checked and task has notes
+                if (includeNotes && task.notes && task.notes.trim()) {
+                  // Indent the notes for better formatting
+                  const indentedNotes = task.notes.trim().split('\n').map(line => `  ${line}`).join('\n');
+                  reportText += `${indentedNotes}\n`;
+                }
               });
               reportText += `\n`;
             }
