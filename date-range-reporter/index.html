@@ -209,10 +209,18 @@
         white-space: pre-wrap;
         word-wrap: break-word;
         transition: background-color 0.3s ease, border-color 0.3s ease;
+        width: 100%;
+        resize: vertical;
+        color: var(--text-primary);
       }
 
-      .report-content:empty::before {
-        content: 'No report generated yet. Select a date range and click "Generate Report".';
+      .report-content:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--shadow);
+      }
+
+      .report-content::placeholder {
         color: var(--text-tertiary);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
@@ -316,7 +324,7 @@
           <div class="report-stats" id="reportStats"></div>
           <button id="copyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
         </div>
-        <div class="report-content" id="reportContent"></div>
+        <textarea class="report-content" id="reportContent" placeholder="No report generated yet. Select a date range and click &quot;Generate Report&quot;."></textarea>
       </div>
     </div>
 
@@ -506,7 +514,7 @@
           });
 
           // Update UI
-          reportContent.textContent = reportText;
+          reportContent.value = reportText;
           reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${datesToShow.length} day${datesToShow.length !== 1 ? 's' : ''}`;
           reportSection.style.display = 'block';
 
@@ -530,7 +538,7 @@
       // Copy to clipboard
       async function copyToClipboard() {
         try {
-          const text = reportContent.textContent;
+          const text = reportContent.value;
           await navigator.clipboard.writeText(text);
 
           PluginAPI.showSnack({
