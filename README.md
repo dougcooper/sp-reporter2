@@ -6,11 +6,15 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed within the selected period
-- ✏️ Edit the generated report before copying or saving
+- ✏️ Edit generated reports in a modal popup
+- 💾 Save reports for future reference
 - 📋 Copy report to clipboard with one click
+- 📁 View and manage saved reports
+- 🗑️ Delete individual or multiple saved reports
 - ⏱️ Shows time spent on tasks (when available)
 - 📈 Displays task completion statistics
 - 📝 Optional inclusion of task notes in reports
+- 🔄 Reports are synced across devices using Super Productivity's persistence API
 
 ## Installation
 
@@ -26,9 +30,17 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 1. Click the "Task Report" button in the header (calendar icon)
 2. Select your desired start and end dates
 3. Click "Generate Report"
-4. Review the report showing tasks grouped by completion date
+4. The report will appear in a modal popup showing:
+   - Tasks grouped by completion date
+   - Time spent on each task (when tracked)
+   - Optional task notes (when enabled)
 5. **Edit the report** as needed - add comments, modify content, or reorganize tasks
-6. Click "Copy to Clipboard" to copy the edited report in Markdown format
+6. **Save the report** with a custom name for future reference
+7. **Copy to Clipboard** to paste the report in Markdown format anywhere
+8. **Manage saved reports** in the list below the date range selection:
+   - Click on a saved report to view/edit it
+   - Delete individual reports with the 🗑️ button
+   - Select multiple reports and delete them all at once
 
 ## Report Format
 
@@ -152,7 +164,7 @@ gh release upload v1.0.0 date-range-reporter.zip --clobber
 
 ## Version
 
-1.2.0
+1.4.0
 
 ## Author
 
