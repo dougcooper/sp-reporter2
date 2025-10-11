@@ -77,6 +77,28 @@ The Markdown format makes it easy to paste into documentation, notes, or any Mar
 
 ## Development
 
+### Test Harness
+
+A test harness is available to test the plugin without needing the full Super Productivity application. It loads the plugin in an iframe with a mocked PluginAPI.
+
+```bash
+# Open the test harness in your browser
+open test-harness/index.html
+
+# Or use a local server
+python3 -m http.server 8000
+# Then navigate to http://localhost:8000/test-harness/
+```
+
+Features:
+- 🎭 Mocked PluginAPI with sample tasks
+- 🎨 Light/Dark theme testing
+- 🔍 API call monitoring and logging
+- 🧪 Pre-configured test scenarios
+- 📊 Sample data generation
+
+See [test-harness/README.md](test-harness/README.md) for detailed usage instructions.
+
 ### Building the Plugin
 
 ```bash

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date Range Reporter - Test Harness</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      margin-bottom: 10px;
+      color: #1976d2;
+    }
+
+    .header p {
+      color: #666;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 20px;
+    }
+
+    .controls {
+      flex: 0 0 350px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+    }
+
+    .controls h2 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .control-section {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .control-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .control-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #555;
+    }
+
+    .btn {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .btn:hover {
+      background: #1565c0;
+    }
+
+    .btn-secondary {
+      background: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #555;
+    }
+
+    .btn-danger {
+      background: #d32f2f;
+    }
+
+    .btn-danger:hover {
+      background: #c62828;
+    }
+
+    .iframe-container {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: calc(100vh - 160px);
+      border: none;
+      display: block;
+    }
+
+    .theme-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .theme-toggle button {
+      flex: 1;
+      padding: 8px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .theme-toggle button.active {
+      background: #1976d2;
+      color: white;
+      border-color: #1976d2;
+    }
+
+    .log-area {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .log-entry.success {
+      color: #4caf50;
+    }
+
+    .log-entry.error {
+      color: #f44336;
+    }
+
+    .log-entry.info {
+      color: #2196f3;
+    }
+
+    .task-count {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .task-count strong {
+      color: #1976d2;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .checkbox-container input {
+      margin-right: 8px;
+    }
+
+    .checkbox-container label {
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧪 Date Range Reporter - Test Harness</h1>
+      <p>Test the plugin with mocked PluginAPI and sample data</p>
+    </div>
+
+    <div class="main-content">
+      <div class="controls">
+        <h2>Test Controls</h2>
+
+        <div class="control-section">
+          <h3>Theme</h3>
+          <div class="theme-toggle">
+            <button id="lightThemeBtn" class="active">☀️ Light</button>
+            <button id="darkThemeBtn">🌙 Dark</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h3>Sample Data</h3>
+          <div class="task-count">
+            <span>Active Tasks:</span>
+            <strong id="activeTaskCount">0</strong>
+          </div>
+          <div class="task-count">
+            <span>Archived Tasks:</span>
+            <strong id="archivedTaskCount">0</strong>
+          </div>
+          <button class="btn" id="loadSampleDataBtn">Load Sample Tasks</button>
+          <button class="btn btn-secondary" id="loadEmptyDataBtn">Clear All Tasks</button>
+          <button class="btn btn-secondary" id="loadManyTasksBtn">Load Many Tasks (100)</button>
+        </div>
+
+        <div class="control-section">
+          <h3>Test Scenarios</h3>
+          <button class="btn" id="testDateRangeBtn">Test Last 7 Days</button>
+          <button class="btn" id="testMonthBtn">Test Last Month</button>
+          <button class="btn" id="testNoTasksBtn">Test Empty Period</button>
+        </div>
+
+        <div class="control-section">
+          <h3>API Monitoring</h3>
+          <div class="checkbox-container">
+            <input type="checkbox" id="logApiCalls" checked>
+            <label for="logApiCalls">Log API Calls</label>
+          </div>
+          <button class="btn btn-secondary" id="clearLogsBtn">Clear Logs</button>
+          <div class="log-area" id="logArea"></div>
+        </div>
+
+        <div class="control-section">
+          <h3>Actions</h3>
+          <button class="btn btn-danger" id="reloadIframeBtn">🔄 Reload Plugin</button>
+        </div>
+      </div>
+
+      <div class="iframe-container">
+        <iframe id="pluginFrame" src="../date-range-reporter/index.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="mock-plugin-api.js"></script>
+  <script src="test-harness.js"></script>
+</body>
+</html>
