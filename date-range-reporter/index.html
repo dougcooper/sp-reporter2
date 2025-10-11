@@ -523,7 +523,7 @@
       <h1>📊 Date Range Task Reporter</h1>
 
       <div class="info">
-        Select a date range to generate a report of all tasks completed during that period.
+        Select a date range to generate a report of all tasks completed or worked on during that period.
       </div>
 
       <div class="input-section">
@@ -540,7 +540,7 @@
         </div>
         <div class="checkbox-field">
           <input type="checkbox" id="excludeEmptyDates" checked />
-          <label for="excludeEmptyDates">Exclude dates with no completed tasks</label>
+          <label for="excludeEmptyDates">Exclude dates with no tasks</label>
         </div>
         <div class="checkbox-field">
           <input type="checkbox" id="includeNotes" />
@@ -723,19 +723,78 @@
           });
 
           // Process all tasks (both archived and active)
+          const processedTasks = new Set(); // Track tasks to avoid duplicates
+          
           allTasks.forEach(task => {
+            // Check if task has work logs
+            const hasWorkLogs = task.timeSpentOnDay && Object.keys(task.timeSpentOnDay).length > 0;
+            
             if (task.isDone && task.doneOn) {
               const taskDate = new Date(task.doneOn);
               const taskDateStr = formatDate(taskDate);
-
-              // Check if task is in date range
-              if (taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate)) {
+              
+              // Check if task completion is in date range
+              const isCompletionInRange = taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate);
+              
+              // Get work logs within date range
+              const workLogsInRange = hasWorkLogs 
+                ? Object.keys(task.timeSpentOnDay).filter(date => 
+                    date >= formatDate(startDate) && date <= formatDate(endDate)
+                  ).sort()
+                : [];
+              
+              // If task has multiple work logs, show each work log as a separate entry
+              if (workLogsInRange.length > 1) {
+                workLogsInRange.forEach(workLogDate => {
+                  if (!tasksByDate[workLogDate]) {
+                    tasksByDate[workLogDate] = [];
+                  }
+                  
+                  // Work logs before completion date get WIP indicator
+                  const isWorkLogBeforeCompletion = workLogDate !== taskDateStr;
+                  const taskEntry = { 
+                    ...task, 
+                    isInProgress: isWorkLogBeforeCompletion,
+                    workLogDate: workLogDate
+                  };
+                  tasksByDate[workLogDate].push(taskEntry);
+                });
+                
+                if (!processedTasks.has(task.id)) {
+                  totalTasks++;
+                  processedTasks.add(task.id);
+                }
+              }
+              // Task with one or no work logs - show normally on completion date if in range
+              else if (isCompletionInRange) {
                 if (!tasksByDate[taskDateStr]) {
                   tasksByDate[taskDateStr] = [];
                 }
                 tasksByDate[taskDateStr].push(task);
-                totalTasks++;
+                if (!processedTasks.has(task.id)) {
+                  totalTasks++;
+                  processedTasks.add(task.id);
+                }
               }
+            }
+            // Include tasks with work logs in the date range (even if not completed)
+            else if (hasWorkLogs) {
+              // Check each date in the task's work logs
+              Object.keys(task.timeSpentOnDay).forEach(workLogDate => {
+                // Check if work log date is in the report date range
+                if (workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate)) {
+                  if (!tasksByDate[workLogDate]) {
+                    tasksByDate[workLogDate] = [];
+                  }
+                  // Mark task as in-progress to differentiate from completed tasks
+                  const taskWithStatus = { ...task, isInProgress: true, workLogDate: workLogDate };
+                  tasksByDate[workLogDate].push(taskWithStatus);
+                  if (!processedTasks.has(task.id)) {
+                    totalTasks++;
+                    processedTasks.add(task.id);
+                  }
+                }
+              });
             }
           });
 
@@ -743,7 +802,8 @@
           let reportText = `# Task Completion Report\n\n`;
           reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
           reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
-          reportText += `**Total Tasks Completed:** ${totalTasks}\n\n`;
+          reportText += `**Total Tasks:** ${totalTasks}\n`;
+          reportText += `*Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*\n\n`;
           reportText += `---\n\n`;
 
           // Sort dates
@@ -761,13 +821,17 @@
             reportText += `## ${formatDateDisplay(dateStr)}\n\n`;
 
             if (tasks.length === 0) {
-              reportText += `*No tasks completed*\n\n`;
+              reportText += `*No tasks*\n\n`;
             } else {
               tasks.forEach((task, index) => {
-                const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateStr]
-                  ? ` *(${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)*`
+                // Use workLogDate if available, otherwise use the date from the section
+                const dateForTimeSpent = task.workLogDate || dateStr;
+                const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateForTimeSpent]
+                  ? ` *(${Math.round(task.timeSpentOnDay[dateForTimeSpent] / 60000)} min)*`
                   : '';
-                reportText += `- ${task.title}${timeSpent}\n`;
+                // Show status indicator for in-progress tasks
+                const statusIndicator = task.isInProgress ? ' WIP' : '';
+                reportText += `- ${task.title}${timeSpent}${statusIndicator}\n`;
                 
                 // Include notes if checkbox is checked and task has notes
                 if (includeNotes && task.notes && task.notes.trim()) {
@@ -793,7 +857,7 @@
           showReportModal(reportText, `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed`);
 
           PluginAPI.showSnack({
-            msg: `Report generated with ${totalTasks} completed tasks`,
+            msg: `Report generated with ${totalTasks} tasks`,
             type: 'SUCCESS',
           });
 
