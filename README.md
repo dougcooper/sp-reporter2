@@ -177,7 +177,7 @@ gh release upload v1.0.0 date-range-reporter.zip --clobber
 
 ## Version
 
-1.4.0
+1.5.0
 
 ## Author
 
