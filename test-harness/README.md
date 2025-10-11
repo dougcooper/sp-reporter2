@@ -137,7 +137,11 @@ After modifying the plugin code:
 
 - The mock PluginAPI doesn't persist data between reloads
 - Some advanced PluginAPI features may not be fully mocked
-- Cross-origin restrictions don't apply since files are loaded from the same origin
+- Cross-origin restrictions don't apply when files are loaded from the same origin
+- **Cross-Origin Restrictions**: When running in restricted environments (like VS Code webviews), some features may have limited functionality:
+  - Theme switching will set the preference but may not apply immediately
+  - Test scenarios will load sample data but may require manual date selection
+  - The test harness will show informational messages instead of errors in these cases
 
 ## Troubleshooting
 
@@ -151,10 +155,16 @@ After modifying the plugin code:
 - Verify the iframe has fully loaded before interacting
 - Check browser console for injection errors
 
-### Theme not switching
-- Ensure the iframe has loaded completely
-- Check that the iframe's document is accessible (no cross-origin issues)
-- Verify the dark-theme class is being toggled in the iframe
+### Theme not switching or date ranges not setting automatically
+- This is expected when running in restricted environments (e.g., VS Code webviews)
+- The test harness will show an info message: "Theme preference set" or "manual date selection needed"
+- You can still manually interact with the plugin controls in the iframe
+- For full functionality, use a local HTTP server (see "How to Use" section above)
+
+### Cross-origin errors in logs
+- These are expected when running in certain environments
+- The test harness gracefully handles these restrictions
+- Use a local HTTP server (`python3 -m http.server`) for unrestricted access
 
 ## Contributing
 
