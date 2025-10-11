@@ -287,6 +287,235 @@
         color: #90caf9;
         border-left-color: #42a5f5;
       }
+
+      /* Modal styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        max-width: 900px;
+        width: 90%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 16px var(--shadow-strong);
+      }
+
+      .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+
+      .modal-close:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      .modal-report-content {
+        background: var(--bg-code);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 16px;
+        min-height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        width: 100%;
+        resize: vertical;
+        color: var(--text-primary);
+      }
+
+      .modal-report-content:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--shadow);
+      }
+
+      /* Saved reports list */
+      .saved-reports-section {
+        margin-top: 24px;
+        padding: 16px;
+        background: var(--bg-tertiary);
+        border-radius: 6px;
+      }
+
+      .saved-reports-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .saved-reports-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .saved-reports-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .saved-report-item {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: border-color 0.2s;
+      }
+
+      .saved-report-item:hover {
+        border-color: var(--accent-color);
+      }
+
+      .saved-report-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent-color);
+      }
+
+      .saved-report-info {
+        flex: 1;
+        cursor: pointer;
+      }
+
+      .saved-report-name {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+      }
+
+      .saved-report-meta {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .saved-report-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      .delete-btn:hover {
+        color: #d32f2f;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 32px;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      .report-name-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        margin-bottom: 16px;
+      }
+
+      .report-name-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--shadow);
+      }
+
+      .danger-btn {
+        background: #d32f2f;
+      }
+
+      .danger-btn:hover {
+        background: #c62828;
+      }
+
+      .danger-btn:active {
+        background: #b71c1c;
+      }
     </style>
   </head>
   <body>
@@ -319,12 +548,33 @@
         </div>
       </div>
 
-      <div class="report-section" id="reportSection" style="display: none;">
-        <div class="report-header">
-          <div class="report-stats" id="reportStats"></div>
-          <button id="copyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+      <!-- Saved Reports Section -->
+      <div class="saved-reports-section" id="savedReportsSection">
+        <div class="saved-reports-header">
+          <h2 class="saved-reports-title">📁 Saved Reports</h2>
+          <button id="deleteSelectedBtn" class="danger-btn" style="display: none;">Delete Selected</button>
         </div>
-        <textarea class="report-content" id="reportContent" placeholder="No report generated yet. Select a date range and click &quot;Generate Report&quot;."></textarea>
+        <div class="saved-reports-list" id="savedReportsList">
+          <div class="empty-state">No saved reports yet. Generate and save a report to get started.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="reportModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Generated Report</h3>
+          <button class="modal-close" id="closeModalBtn">×</button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="report-name-input" id="reportNameInput" placeholder="Report name (optional)" />
+          <textarea class="modal-report-content" id="modalReportContent"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="modalCopyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
+          <button id="modalSaveBtn">💾 Save Report</button>
+        </div>
       </div>
     </div>
 
@@ -381,12 +631,27 @@
       const startDateInput = document.getElementById('startDate');
       const endDateInput = document.getElementById('endDate');
       const generateBtn = document.getElementById('generateBtn');
-      const copyBtn = document.getElementById('copyBtn');
-      const reportSection = document.getElementById('reportSection');
-      const reportContent = document.getElementById('reportContent');
-      const reportStats = document.getElementById('reportStats');
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
       const includeNotesCheckbox = document.getElementById('includeNotes');
+      
+      // Modal elements
+      const reportModal = document.getElementById('reportModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalReportContent = document.getElementById('modalReportContent');
+      const modalCopyBtn = document.getElementById('modalCopyBtn');
+      const modalSaveBtn = document.getElementById('modalSaveBtn');
+      const reportNameInput = document.getElementById('reportNameInput');
+      
+      // Saved reports elements
+      const savedReportsSection = document.getElementById('savedReportsSection');
+      const savedReportsList = document.getElementById('savedReportsList');
+      const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+
+      // State
+      let savedReports = [];
+      let currentReport = null;
+      let isEditingExisting = false;
 
       // Set default dates to past seven days (including today)
       const sevenDaysAgo = new Date(today);
@@ -515,10 +780,17 @@
             }
           });
 
-          // Update UI
-          reportContent.value = reportText;
-          reportStats.textContent = `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed across ${datesToShow.length} day${datesToShow.length !== 1 ? 's' : ''}`;
-          reportSection.style.display = 'block';
+          // Store report data and show modal
+          currentReport = {
+            content: reportText,
+            startDate: startDateInput.value,
+            endDate: endDateInput.value,
+            totalTasks: totalTasks,
+            generatedAt: new Date().toISOString()
+          };
+
+          isEditingExisting = false;
+          showReportModal(reportText, `${totalTasks} task${totalTasks !== 1 ? 's' : ''} completed`);
 
           PluginAPI.showSnack({
             msg: `Report generated with ${totalTasks} completed tasks`,
@@ -537,10 +809,29 @@
         }
       }
 
-      // Copy to clipboard
-      async function copyToClipboard() {
+      // Show report modal
+      function showReportModal(reportText, subtitle = '') {
+        modalTitle.textContent = isEditingExisting ? 'Edit Saved Report' : 'Generated Report';
+        if (subtitle && !isEditingExisting) {
+          modalTitle.textContent += ` - ${subtitle}`;
+        }
+        modalReportContent.value = reportText;
+        reportNameInput.value = currentReport.name || '';
+        reportModal.classList.add('show');
+      }
+
+      // Hide report modal
+      function hideReportModal() {
+        reportModal.classList.remove('show');
+        reportNameInput.value = '';
+        currentReport = null;
+        isEditingExisting = false;
+      }
+
+      // Copy to clipboard from modal
+      async function copyFromModal() {
         try {
-          const text = reportContent.value;
+          const text = modalReportContent.value;
           await navigator.clipboard.writeText(text);
 
           PluginAPI.showSnack({
@@ -557,9 +848,209 @@
         }
       }
 
+      // Save report
+      async function saveReport() {
+        try {
+          const reportContent = modalReportContent.value;
+          const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const reportName = reportNameInput.value.trim() || `Report ${formatDateDisplay(currentReport.startDate)} - ${formatDateDisplay(currentReport.endDate)} at ${currentTime}`;
+
+          if (isEditingExisting) {
+            // Update existing report
+            const existingIndex = savedReports.findIndex(r => r.id === currentReport.id);
+            if (existingIndex !== -1) {
+              savedReports[existingIndex] = {
+                ...savedReports[existingIndex],
+                name: reportName,
+                content: reportContent,
+                updatedAt: new Date().toISOString()
+              };
+            }
+          } else {
+            // Create new report
+            const newReport = {
+              id: Date.now().toString(),
+              name: reportName,
+              content: reportContent,
+              startDate: currentReport.startDate,
+              endDate: currentReport.endDate,
+              totalTasks: currentReport.totalTasks,
+              generatedAt: currentReport.generatedAt,
+              savedAt: new Date().toISOString()
+            };
+            savedReports.unshift(newReport);
+          }
+
+          await persistReports();
+          renderSavedReports();
+          hideReportModal();
+
+          PluginAPI.showSnack({
+            msg: isEditingExisting ? 'Report updated successfully!' : 'Report saved successfully!',
+            type: 'SUCCESS',
+            ico: 'save',
+          });
+        } catch (error) {
+          console.error('Error saving report:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to save report',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Load reports from storage
+      async function loadReports() {
+        try {
+          const data = await PluginAPI.loadSyncedData();
+          if (data) {
+            savedReports = JSON.parse(data);
+          }
+          renderSavedReports();
+        } catch (error) {
+          console.error('Error loading reports:', error);
+        }
+      }
+
+      // Persist reports to storage
+      async function persistReports() {
+        try {
+          await PluginAPI.persistDataSynced(JSON.stringify(savedReports));
+        } catch (error) {
+          console.error('Error persisting reports:', error);
+          throw error;
+        }
+      }
+
+      // Render saved reports list
+      function renderSavedReports() {
+        if (savedReports.length === 0) {
+          savedReportsList.innerHTML = '<div class="empty-state">No saved reports yet. Generate and save a report to get started.</div>';
+          deleteSelectedBtn.style.display = 'none';
+          return;
+        }
+
+        savedReportsList.innerHTML = savedReports.map(report => `
+          <div class="saved-report-item" data-id="${report.id}">
+            <input type="checkbox" class="saved-report-checkbox" data-id="${report.id}" />
+            <div class="saved-report-info" onclick="viewReport('${report.id}')">
+              <div class="saved-report-name">${report.name}</div>
+              <div class="saved-report-meta">
+                ${formatDateDisplay(report.startDate)} - ${formatDateDisplay(report.endDate)} · 
+                ${report.totalTasks} task${report.totalTasks !== 1 ? 's' : ''} · 
+                Saved ${new Date(report.savedAt).toLocaleDateString()}
+              </div>
+            </div>
+            <div class="saved-report-actions">
+              <button class="icon-btn delete-btn" onclick="deleteReport('${report.id}')" title="Delete">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+
+        // Update delete selected button visibility
+        updateDeleteSelectedButton();
+      }
+
+      // View saved report
+      function viewReport(reportId) {
+        const report = savedReports.find(r => r.id === reportId);
+        if (report) {
+          currentReport = report;
+          isEditingExisting = true;
+          showReportModal(report.content);
+        }
+      }
+
+      // Delete single report
+      async function deleteReport(reportId) {
+        if (!confirm('Are you sure you want to delete this report?')) {
+          return;
+        }
+
+        try {
+          savedReports = savedReports.filter(r => r.id !== reportId);
+          await persistReports();
+          renderSavedReports();
+
+          PluginAPI.showSnack({
+            msg: 'Report deleted successfully',
+            type: 'SUCCESS',
+          });
+        } catch (error) {
+          console.error('Error deleting report:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to delete report',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Delete selected reports
+      async function deleteSelectedReports() {
+        const checkboxes = document.querySelectorAll('.saved-report-checkbox:checked');
+        if (checkboxes.length === 0) {
+          return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${checkboxes.length} report${checkboxes.length !== 1 ? 's' : ''}?`)) {
+          return;
+        }
+
+        try {
+          const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.id);
+          savedReports = savedReports.filter(r => !selectedIds.includes(r.id));
+          await persistReports();
+          renderSavedReports();
+
+          PluginAPI.showSnack({
+            msg: `${checkboxes.length} report${checkboxes.length !== 1 ? 's' : ''} deleted successfully`,
+            type: 'SUCCESS',
+          });
+        } catch (error) {
+          console.error('Error deleting reports:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to delete reports',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Update delete selected button visibility
+      function updateDeleteSelectedButton() {
+        // Use event delegation for checkboxes
+        savedReportsList.addEventListener('change', (e) => {
+          if (e.target.classList.contains('saved-report-checkbox')) {
+            const checkedCount = document.querySelectorAll('.saved-report-checkbox:checked').length;
+            deleteSelectedBtn.style.display = checkedCount > 0 ? 'block' : 'none';
+          }
+        });
+      }
+
+      // Copy to clipboard (legacy function for backward compatibility)
+      async function copyToClipboard() {
+        await copyFromModal();
+      }
+
       // Event listeners
       generateBtn.addEventListener('click', generateReport);
-      copyBtn.addEventListener('click', copyToClipboard);
+      closeModalBtn.addEventListener('click', hideReportModal);
+      modalCopyBtn.addEventListener('click', copyFromModal);
+      modalSaveBtn.addEventListener('click', saveReport);
+      deleteSelectedBtn.addEventListener('click', deleteSelectedReports);
+
+      // Close modal on overlay click
+      reportModal.addEventListener('click', (e) => {
+        if (e.target === reportModal) {
+          hideReportModal();
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && reportModal.classList.contains('show')) {
+          hideReportModal();
+        }
+      });
 
       // Allow Enter key to generate report
       startDateInput.addEventListener('keypress', (e) => {
@@ -569,6 +1060,16 @@
       endDateInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') generateReport();
       });
+
+      // Make functions globally accessible for onclick handlers
+      window.viewReport = viewReport;
+      window.deleteReport = deleteReport;
+
+      document.addEventListener("DOMContentLoaded", function() {
+        // Load saved reports on initialization
+        loadReports();
+      });
+      
     </script>
   </body>
 </html>
