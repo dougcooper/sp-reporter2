@@ -1,18 +1,19 @@
 # Date Range Reporter Plugin for Super Productivity
 
-A plugin for [Super Productivity](https://super-productivity.com) that generates reports of completed tasks within a specified date range.
+A plugin for [Super Productivity](https://super-productivity.com) that generates reports of completed tasks and tasks with work logs within a specified date range.
 
 ## Features
 
 - 📅 Select custom date ranges for reporting
-- 📊 View all tasks completed within the selected period
+- 📊 View all tasks completed or worked on within the selected period
+- 🔄 Includes in-progress tasks that have work logs in the date range
 - ✏️ Edit generated reports in a modal popup
 - 💾 Save reports for future reference
 - 📋 Copy report to clipboard with one click
 - 📁 View and manage saved reports
 - 🗑️ Delete individual or multiple saved reports
 - ⏱️ Shows time spent on tasks (when available)
-- 📈 Displays task completion statistics
+- 📈 Displays task statistics
 - 📝 Optional inclusion of task notes in reports
 - 🔄 Reports are synced across devices using Super Productivity's persistence API
 
@@ -31,7 +32,8 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 2. Select your desired start and end dates
 3. Click "Generate Report"
 4. The report will appear in a modal popup showing:
-   - Tasks grouped by completion date
+   - Tasks grouped by date (completed tasks and tasks with work logs)
+   - In-progress tasks marked with 🔄 indicator
    - Time spent on each task (when tracked)
    - Optional task notes (when enabled)
 5. **Edit the report** as needed - add comments, modify content, or reorganize tasks
@@ -46,8 +48,9 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
-- Total number of completed tasks
-- Tasks grouped by completion date with bullet points
+- Total number of tasks (both completed and with work logs)
+- Tasks grouped by date with bullet points
+- In-progress tasks marked with 🔄 indicator
 - Time spent on each task (when tracked)
 - Optional task notes (when enabled)
 
@@ -57,7 +60,8 @@ Example report:
 
 **Date Range:** Monday, October 1, 2024 - Monday, October 7, 2024  
 **Generated:** 10/7/2024, 3:30:00 PM  
-**Total Tasks Completed:** 5
+**Total Tasks:** 6
+*Note: Tasks marked with 🔄 are in progress with work logs*
 
 ---
 
@@ -66,10 +70,11 @@ Example report:
 - Complete project proposal *(45 min)*
 - Review pull requests *(30 min)*
   Reviewed PRs #123 and #124, left feedback on both
+- Debug authentication issue *(90 min)* 🔄
 
 ## Tuesday, October 2, 2024
 
-*No tasks completed*
+*No tasks*
 
 ## Wednesday, October 3, 2024
 
