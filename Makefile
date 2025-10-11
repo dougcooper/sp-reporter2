@@ -7,7 +7,7 @@ VERSION := $(shell grep '"version"' package.json | sed 's/.*"version": "\(.*\)".
 DESCRIPTION := $(shell grep '"description"' package.json | sed 's/.*"description": "\(.*\)".*/\1/')
 RELEASE_FILE = date-range-reporter-v$(VERSION).zip
 
-.PHONY: build clean help release release-check
+.PHONY: build clean help release release-check test
 
 # Default target
 build: clean
@@ -24,6 +24,12 @@ clean:
 	@echo "Cleaning up..."
 	@rm -f $(ZIP_FILE) date-range-reporter-v*.zip $(PLUGIN_DIR)/manifest.json
 	@echo "✓ Cleaned"
+
+# Run tests
+test:
+	@echo "Running tests..."
+	@npm test
+	@echo "✓ Tests completed"
 
 # Pre-release checks
 release-check:
@@ -81,6 +87,7 @@ help:
 	@echo ""
 	@echo "Available targets:"
 	@echo "  make build         - Build the plugin zip file (default)"
+	@echo "  make test          - Run unit tests"
 	@echo "  make release       - Complete release process (v$(VERSION))"
 	@echo "                       • Checks prerequisites"
 	@echo "                       • Builds plugin zip"

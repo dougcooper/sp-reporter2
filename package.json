@@ -1,10 +1,12 @@
 {
-  "name": "sp-reporter",
+  "name": "sp-date-range-reporter",
   "version": "1.8.0",
   "description": "Generate, save and recall reports of completed tasks/work logs within a specified date range",
-  "main": "\"\"",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "release": "make release",
     "build": "make build",
     "clean": "make clean"
@@ -13,6 +15,18 @@
     "type": "git",
     "url": "git+https://github.com/dougcooper/sp-reporter.git"
   },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.0.4",
+    "@vitest/ui": "^1.0.4",
+    "happy-dom": "^12.10.3",
+    "jsdom": "^23.0.1",
+    "vitest": "^1.6.1"
+  },
+  "keywords": [
+    "super-productivity",
+    "plugin",
+    "task-reporter"
+  ],
   "author": "doug cooper",
   "license": "MIT",
   "bugs": {
