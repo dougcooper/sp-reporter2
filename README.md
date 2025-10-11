@@ -141,60 +141,32 @@ The Markdown format makes it easy to paste into documentation, notes, or any Mar
 
 ### Testing
 
-The plugin includes a comprehensive test suite using Vitest. The code has been refactored to support dependency injection and testability.
+The plugin includes unit tests using Vitest. The tests use JSDOM to load the actual `date-range-reporter/index.html` file with a mocked PluginAPI, ensuring the production code is tested directly.
 
 #### Running Tests
 
 ```bash
 # Run tests once
-make test
-
-# Or using npm
 npm test
+
+# Or using make
+make test
 
 # Run tests in watch mode
 npm run test:watch
 
-# Run tests with coverage
+# Generate coverage report
 npm run test:coverage
 ```
 
 #### Test Coverage
 
-The test suite includes:
-- **48 unit tests** covering core functionality
-- **~89% code coverage** across all modules
-- Tests for date utilities, report generation, storage, and plugin initialization
-- Mock PluginAPI for isolated testing
-
-#### Test Structure
-
-```
-tests/
-├── dateUtils.test.js          # Date formatting and range tests
-├── reportGenerator.test.js    # Report generation logic tests
-├── reportStorage.test.js      # Report persistence tests
-├── plugin.test.js             # Plugin initialization tests
-└── mockPluginAPI.js           # Mock implementation of PluginAPI
-
-src/
-├── dateUtils.js               # Extracted date utilities
-├── reportGenerator.js         # Extracted report generation logic
-├── reportStorage.js           # Extracted storage logic
-└── plugin.js                  # Refactored plugin with DI support
-```
-
-#### Continuous Integration
-
-Tests run automatically on:
-- Every push to `main` or `master` branches
-- Every pull request
-- Can be triggered manually via GitHub Actions
-
-The CI workflow:
-- Runs all tests
-- Generates coverage reports
-- Uploads coverage to Codecov (if configured)
+The test suite validates:
+- Date utility functions (formatting, display, range generation)
+- Report generation and validation
+- Plugin integration with mocked PluginAPI
+- Theme detection
+- UI helper functions
 
 ### Building the Plugin
 
@@ -263,23 +235,10 @@ gh release upload v1.0.0 date-range-reporter.zip --clobber
 
 ## Plugin Files
 
-### Production Files (in `date-range-reporter/`)
 - `manifest.json` - Plugin configuration
 - `plugin.js` - Header button registration
 - `index.html` - Report UI interface
 - `icon.svg` - Plugin icon
-
-### Development Files
-- `src/` - Refactored modules for testability
-  - `dateUtils.js` - Date utilities
-  - `reportGenerator.js` - Report generation logic
-  - `reportStorage.js` - Report storage management
-  - `plugin.js` - Plugin initialization with DI
-- `tests/` - Comprehensive test suite
-- `package.json` - Node.js dependencies
-- `vitest.config.js` - Vitest configuration
-- `Makefile` - Build and test automation
-- `.github/workflows/` - CI/CD workflows
 - `README.md` - This documentation
 
 ## Version
