@@ -852,7 +852,8 @@
       async function saveReport() {
         try {
           const reportContent = modalReportContent.value;
-          const reportName = reportNameInput.value.trim() || `Report ${formatDateDisplay(currentReport.startDate)} - ${formatDateDisplay(currentReport.endDate)}`;
+          const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const reportName = reportNameInput.value.trim() || `Report ${formatDateDisplay(currentReport.startDate)} - ${formatDateDisplay(currentReport.endDate)} at ${currentTime}`;
 
           if (isEditingExisting) {
             // Update existing report
@@ -1064,8 +1065,11 @@
       window.viewReport = viewReport;
       window.deleteReport = deleteReport;
 
-      // Load saved reports on initialization
-      loadReports();
+      document.addEventListener("DOMContentLoaded", function() {
+        // Load saved reports on initialization
+        loadReports();
+      });
+      
     </script>
   </body>
 </html>
