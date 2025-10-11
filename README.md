@@ -50,7 +50,8 @@ The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
 - Total number of tasks (both completed and with work logs)
 - Tasks grouped by date with bullet points
-- In-progress tasks marked with WIP indicator
+- Individual work log entries for tasks with multiple work logs
+- WIP indicator for work in progress entries (before task completion)
 - Time spent on each task (when tracked)
 - Optional task notes (when enabled)
 
@@ -61,7 +62,7 @@ Example report:
 **Date Range:** Monday, October 1, 2024 - Monday, October 7, 2024  
 **Generated:** 10/7/2024, 3:30:00 PM  
 **Total Tasks:** 6
-*Note: Tasks marked with WIP are in progress with work logs*
+*Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*
 
 ---
 
@@ -70,7 +71,6 @@ Example report:
 - Complete project proposal *(45 min)*
 - Review pull requests *(30 min)*
   Reviewed PRs #123 and #124, left feedback on both
-- Debug authentication issue *(90 min)* WIP
 
 ## Tuesday, October 2, 2024
 
@@ -80,8 +80,16 @@ Example report:
 
 - Write documentation *(120 min)*
   Updated API docs and added examples for new endpoints
+- Refactor API endpoints *(60 min)* WIP
+
+## Thursday, October 4, 2024
+
+- Refactor API endpoints *(90 min)* WIP
+
+## Friday, October 5, 2024
+
+- Refactor API endpoints *(120 min)*
 - Fix bug in authentication *(60 min)*
-- Team meeting notes *(15 min)*
 ```
 
 The Markdown format makes it easy to paste into documentation, notes, or any Markdown-compatible application.
