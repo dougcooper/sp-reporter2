@@ -8,5 +8,12 @@
   "author": "Super Productivity Community",
   "icon": "icon.svg",
   "iFrame": true,
-  "sidePanel": false
+  "sidePanel": false,
+  "permissions": [
+    "getTasks",
+    "getArchivedTasks",
+    "showSnack",
+    "persistDataSynced",
+    "loadSyncedData"
+  ]
 }
