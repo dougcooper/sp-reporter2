@@ -6,7 +6,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed or worked on within the selected period
-- 🔄 Includes in-progress tasks that have work logs in the date range
+- ⏳ Includes in-progress tasks that have work logs in the date range
 - ✏️ Edit generated reports in a modal popup
 - 💾 Save reports for future reference
 - 📋 Copy report to clipboard with one click
@@ -33,7 +33,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 3. Click "Generate Report"
 4. The report will appear in a modal popup showing:
    - Tasks grouped by date (completed tasks and tasks with work logs)
-   - In-progress tasks marked with 🔄 indicator
+   - In-progress tasks marked with WIP indicator
    - Time spent on each task (when tracked)
    - Optional task notes (when enabled)
 5. **Edit the report** as needed - add comments, modify content, or reorganize tasks
@@ -50,7 +50,7 @@ The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
 - Total number of tasks (both completed and with work logs)
 - Tasks grouped by date with bullet points
-- In-progress tasks marked with 🔄 indicator
+- In-progress tasks marked with WIP indicator
 - Time spent on each task (when tracked)
 - Optional task notes (when enabled)
 
@@ -61,7 +61,7 @@ Example report:
 **Date Range:** Monday, October 1, 2024 - Monday, October 7, 2024  
 **Generated:** 10/7/2024, 3:30:00 PM  
 **Total Tasks:** 6
-*Note: Tasks marked with 🔄 are in progress with work logs*
+*Note: Tasks marked with WIP are in progress with work logs*
 
 ---
 
@@ -70,7 +70,7 @@ Example report:
 - Complete project proposal *(45 min)*
 - Review pull requests *(30 min)*
   Reviewed PRs #123 and #124, left feedback on both
-- Debug authentication issue *(90 min)* 🔄
+- Debug authentication issue *(90 min)* WIP
 
 ## Tuesday, October 2, 2024
 

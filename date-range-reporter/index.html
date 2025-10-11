@@ -769,7 +769,7 @@
           reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
           reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
           reportText += `**Total Tasks:** ${totalTasks}\n`;
-          reportText += `*Note: Tasks marked with 🔄 are in progress with work logs*\n\n`;
+          reportText += `*Note: Tasks marked with WIP are in progress with work logs*\n\n`;
           reportText += `---\n\n`;
 
           // Sort dates
@@ -794,7 +794,7 @@
                   ? ` *(${Math.round(task.timeSpentOnDay[dateStr] / 60000)} min)*`
                   : '';
                 // Show status indicator for in-progress tasks
-                const statusIndicator = task.isInProgress ? ' 🔄' : '';
+                const statusIndicator = task.isInProgress ? ' WIP' : '';
                 reportText += `- ${task.title}${timeSpent}${statusIndicator}\n`;
                 
                 // Include notes if checkbox is checked and task has notes
