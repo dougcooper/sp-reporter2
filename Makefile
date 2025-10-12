@@ -13,8 +13,9 @@ RELEASE_FILE = date-range-reporter-v$(VERSION).zip
 build: clean
 	@echo "Building plugin zip file..."
 	@echo "Generating manifest.json from template..."
-	@sed -e 's/{{VERSION}}/$(VERSION)/g' -e 's/{{DESCRIPTION}}/$(DESCRIPTION)/g' \
-		$(PLUGIN_DIR)/manifest.json.template > $(PLUGIN_DIR)/manifest.json
+	@VERSION="$(VERSION)" DESCRIPTION="$(DESCRIPTION)" sh -c '\
+		sed -e "s/{{VERSION}}/$$VERSION/g" -e "s|{{DESCRIPTION}}|$$DESCRIPTION|g" \
+		$(PLUGIN_DIR)/manifest.json.template > $(PLUGIN_DIR)/manifest.json'
 	@cd $(PLUGIN_DIR) && zip -r ../$(ZIP_FILE) . -x "manifest.json.template"
 	@echo "✓ Plugin packaged successfully: $(ZIP_FILE)"
 
