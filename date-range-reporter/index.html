@@ -534,11 +534,44 @@
       .danger-btn:active {
         background: #b71c1c;
       }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+
+      .header-container h1 {
+        margin-bottom: 0;
+      }
+
+      .settings-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .settings-btn:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>📊 Date Range Task Reporter</h1>
+      <div class="header-container">
+        <h1>📊 Date Range Task Reporter</h1>
+        <button class="settings-btn" id="settingsBtn" title="Filter Settings">⚙️</button>
+      </div>
 
       <div class="info">
         Select a date range to generate a report of all tasks completed or worked on during that period.
@@ -555,33 +588,6 @@
             <input type="date" id="endDate" />
           </div>
           <button id="generateBtn">Generate Report</button>
-        </div>
-        <div class="input-field" style="margin-top: 12px;">
-          <label for="groupBy">Group by</label>
-          <select id="groupBy" style="width: 200px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-light); background: var(--bg-secondary); color: var(--text-primary);">
-            <option value="date">Date</option>
-            <option value="project">Project</option>
-          </select>
-        </div>
-        <div class="checkbox-field" id="showProjectCheckbox">
-          <input type="checkbox" id="showProject" />
-          <label for="showProject">Show project name with tasks</label>
-        </div>
-        <div class="checkbox-field" id="showDateCheckbox" style="display: none;">
-          <input type="checkbox" id="showDate" />
-          <label for="showDate">Show completion date with tasks</label>
-        </div>
-        <div class="checkbox-field">
-          <input type="checkbox" id="excludeEmptyDates" checked />
-          <label for="excludeEmptyDates">Exclude dates with no tasks</label>
-        </div>
-        <div class="checkbox-field">
-          <input type="checkbox" id="includeNotes" />
-          <label for="includeNotes">Include notes for each task</label>
-        </div>
-        <div class="input-field" style="margin-top: 12px;">
-          <label for="minTimeSpent">Minimum time to include (minutes)</label>
-          <input type="number" id="minTimeSpent" min="0" max="60" value="5" style="width: 100px;" />
         </div>
       </div>
 
@@ -611,6 +617,49 @@
         <div class="modal-footer">
           <button id="modalCopyBtn" class="secondary-btn">📋 Copy to Clipboard</button>
           <button id="modalSaveBtn">💾 Save Report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences Modal -->
+    <div class="modal-overlay" id="preferencesModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">⚙️ Filter Settings</h3>
+          <button class="modal-close" id="closePreferencesBtn">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="input-field" style="margin-bottom: 16px;">
+            <label for="groupBy">Group by</label>
+            <select id="groupBy" style="width: 200px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-light); background: var(--bg-secondary); color: var(--text-primary);">
+              <option value="date">Date</option>
+              <option value="project">Project</option>
+            </select>
+          </div>
+          <div class="checkbox-field" id="showProjectCheckbox">
+            <input type="checkbox" id="showProject" />
+            <label for="showProject">Show project name with tasks</label>
+          </div>
+          <div class="checkbox-field" id="showDateCheckbox" style="display: none;">
+            <input type="checkbox" id="showDate" />
+            <label for="showDate">Show completion date with tasks</label>
+          </div>
+          <div class="checkbox-field">
+            <input type="checkbox" id="excludeEmptyDates" checked />
+            <label for="excludeEmptyDates">Exclude dates with no tasks</label>
+          </div>
+          <div class="checkbox-field">
+            <input type="checkbox" id="includeNotes" />
+            <label for="includeNotes">Include notes for each task</label>
+          </div>
+          <div class="input-field" style="margin-top: 16px;">
+            <label for="minTimeSpent">Minimum time to include (minutes)</label>
+            <input type="number" id="minTimeSpent" min="0" max="60" value="5" style="width: 100px;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancelPreferencesBtn" class="secondary-btn">Cancel</button>
+          <button id="savePreferencesBtn">💾 Save Preferences</button>
         </div>
       </div>
     </div>
@@ -686,6 +735,13 @@
       const modalSaveBtn = document.getElementById('modalSaveBtn');
       const reportNameInput = document.getElementById('reportNameInput');
       
+      // Preferences modal elements
+      const preferencesModal = document.getElementById('preferencesModal');
+      const closePreferencesBtn = document.getElementById('closePreferencesBtn');
+      const cancelPreferencesBtn = document.getElementById('cancelPreferencesBtn');
+      const savePreferencesBtn = document.getElementById('savePreferencesBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+      
       // Saved reports elements
       const savedReportsSection = document.getElementById('savedReportsSection');
       const savedReportsList = document.getElementById('savedReportsList');
@@ -695,6 +751,14 @@
       let savedReports = [];
       let currentReport = null;
       let isEditingExisting = false;
+      let preferences = {
+        groupBy: 'date',
+        showProject: false,
+        showDate: false,
+        excludeEmptyDates: true,
+        includeNotes: false,
+        minTimeSpent: 5
+      };
 
       // Set default dates to past seven days (including today)
       const sevenDaysAgo = new Date(today);
@@ -1208,7 +1272,17 @@
         try {
           const data = await PluginAPI.loadSyncedData();
           if (data) {
-            savedReports = JSON.parse(data);
+            const parsed = JSON.parse(data);
+            // Support both old format (array) and new format (object with reports and preferences)
+            if (Array.isArray(parsed)) {
+              savedReports = parsed;
+            } else {
+              savedReports = parsed.reports || [];
+              if (parsed.preferences) {
+                preferences = { ...preferences, ...parsed.preferences };
+                applyPreferences();
+              }
+            }
           }
           renderSavedReports();
         } catch (error) {
@@ -1219,11 +1293,84 @@
       // Persist reports to storage
       async function persistReports() {
         try {
-          await PluginAPI.persistDataSynced(JSON.stringify(savedReports));
+          const data = {
+            reports: savedReports,
+            preferences: preferences
+          };
+          await PluginAPI.persistDataSynced(JSON.stringify(data));
         } catch (error) {
           console.error('Error persisting reports:', error);
           throw error;
         }
+      }
+
+      // Load preferences and apply to UI
+      function applyPreferences() {
+        groupBySelect.value = preferences.groupBy;
+        showProjectCheckbox.checked = preferences.showProject;
+        showDateCheckbox.checked = preferences.showDate;
+        excludeEmptyDatesCheckbox.checked = preferences.excludeEmptyDates;
+        includeNotesCheckbox.checked = preferences.includeNotes;
+        minTimeSpentInput.value = preferences.minTimeSpent;
+        
+        // Update visibility based on groupBy
+        updateGroupByVisibility();
+      }
+
+      // Update visibility of checkboxes based on groupBy selection
+      function updateGroupByVisibility() {
+        if (groupBySelect.value === 'date') {
+          showProjectCheckboxContainer.style.display = 'flex';
+          showDateCheckboxContainer.style.display = 'none';
+          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude dates with no tasks';
+        } else {
+          showProjectCheckboxContainer.style.display = 'none';
+          showDateCheckboxContainer.style.display = 'flex';
+          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude projects with no tasks';
+        }
+      }
+
+      // Show preferences modal
+      function showPreferencesModal() {
+        preferencesModal.classList.add('show');
+      }
+
+      // Hide preferences modal
+      function hidePreferencesModal() {
+        preferencesModal.classList.remove('show');
+      }
+
+      // Save preferences
+      async function savePreferences() {
+        try {
+          preferences.groupBy = groupBySelect.value;
+          preferences.showProject = showProjectCheckbox.checked;
+          preferences.showDate = showDateCheckbox.checked;
+          preferences.excludeEmptyDates = excludeEmptyDatesCheckbox.checked;
+          preferences.includeNotes = includeNotesCheckbox.checked;
+          preferences.minTimeSpent = parseInt(minTimeSpentInput.value);
+
+          await persistReports();
+          hidePreferencesModal();
+
+          PluginAPI.showSnack({
+            msg: 'Preferences saved successfully!',
+            type: 'SUCCESS',
+            ico: 'settings',
+          });
+        } catch (error) {
+          console.error('Error saving preferences:', error);
+          PluginAPI.showSnack({
+            msg: 'Failed to save preferences',
+            type: 'ERROR',
+          });
+        }
+      }
+
+      // Cancel preferences (restore previous values)
+      function cancelPreferences() {
+        applyPreferences();
+        hidePreferencesModal();
       }
 
       // Render saved reports list
@@ -1342,30 +1489,36 @@
       modalSaveBtn.addEventListener('click', saveReport);
       deleteSelectedBtn.addEventListener('click', deleteSelectedReports);
 
-      // Handle groupBy change to show/hide appropriate checkboxes
-      groupBySelect.addEventListener('change', () => {
-        if (groupBySelect.value === 'date') {
-          showProjectCheckboxContainer.style.display = 'flex';
-          showDateCheckboxContainer.style.display = 'none';
-          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude dates with no tasks';
-        } else {
-          showProjectCheckboxContainer.style.display = 'none';
-          showDateCheckboxContainer.style.display = 'flex';
-          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude projects with no tasks';
-        }
-      });
+      // Preferences modal event listeners
+      settingsBtn.addEventListener('click', showPreferencesModal);
+      closePreferencesBtn.addEventListener('click', hidePreferencesModal);
+      cancelPreferencesBtn.addEventListener('click', cancelPreferences);
+      savePreferencesBtn.addEventListener('click', savePreferences);
 
-      // Close modal on overlay click
+      // Handle groupBy change to show/hide appropriate checkboxes
+      groupBySelect.addEventListener('change', updateGroupByVisibility);
+
+      // Close modals on overlay click
       reportModal.addEventListener('click', (e) => {
         if (e.target === reportModal) {
           hideReportModal();
         }
       });
 
+      preferencesModal.addEventListener('click', (e) => {
+        if (e.target === preferencesModal) {
+          hidePreferencesModal();
+        }
+      });
+
       // Close modal on Escape key
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && reportModal.classList.contains('show')) {
-          hideReportModal();
+        if (e.key === 'Escape') {
+          if (reportModal.classList.contains('show')) {
+            hideReportModal();
+          } else if (preferencesModal.classList.contains('show')) {
+            hidePreferencesModal();
+          }
         }
       });
 
