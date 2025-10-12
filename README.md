@@ -7,13 +7,14 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed or worked on within the selected period
 - ⏳ Includes in-progress tasks that have work logs in the date range
+- 🔍 **Filter out short work logs** - Exclude accidental or minimal time entries (default: 5 min threshold)
 - ✏️ Edit generated reports in a modal popup
 - 💾 Save reports for future reference
 - 📋 Copy report to clipboard with one click
 - 📁 View and manage saved reports
 - 🗑️ Delete individual or multiple saved reports
 - ⏱️ Shows time spent on tasks (when available)
-- 📈 Displays task statistics
+- 📈 Displays task statistics including excluded work log counts
 - 📝 Optional inclusion of task notes in reports
 - 🔄 Reports are synced across devices using Super Productivity's persistence API
 
@@ -30,16 +31,18 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 1. Click the "Task Report" button in the header (calendar icon)
 2. Select your desired start and end dates
-3. Click "Generate Report"
-4. The report will appear in a modal popup showing:
+3. **Set minimum time threshold** (default: 5 minutes) to filter out accidental or very short work logs
+4. Click "Generate Report"
+5. The report will appear in a modal popup showing:
    - Tasks grouped by date (completed tasks and tasks with work logs)
    - In-progress tasks marked with WIP indicator
    - Time spent on each task (when tracked)
+   - Count of excluded work logs (if any were filtered out)
    - Optional task notes (when enabled)
-5. **Edit the report** as needed - add comments, modify content, or reorganize tasks
-6. **Save the report** with a custom name for future reference
-7. **Copy to Clipboard** to paste the report in Markdown format anywhere
-8. **Manage saved reports** in the list below the date range selection:
+6. **Edit the report** as needed - add comments, modify content, or reorganize tasks
+7. **Save the report** with a custom name for future reference
+8. **Copy to Clipboard** to paste the report in Markdown format anywhere
+9. **Manage saved reports** in the list below the date range selection:
    - Click on a saved report to view/edit it
    - Delete individual reports with the 🗑️ button
    - Select multiple reports and delete them all at once
@@ -49,6 +52,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
 - Total number of tasks (both completed and with work logs)
+- Count of excluded work logs (when applicable) with the threshold value
 - Tasks grouped by date with bullet points
 - Individual work log entries for tasks with multiple work logs
 - WIP indicator for work in progress entries (before task completion)
@@ -62,6 +66,7 @@ Example report:
 **Date Range:** Monday, October 1, 2024 - Monday, October 7, 2024  
 **Generated:** 10/7/2024, 3:30:00 PM  
 **Total Tasks:** 6
+**Excluded Work Logs:** 2 (below 5 min threshold)
 *Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*
 
 ---
