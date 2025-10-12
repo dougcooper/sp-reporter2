@@ -1,2 +1,4 @@
 *.zip
 test-plugin.html
+node_modules/
+date-range-reporter/manifest.json

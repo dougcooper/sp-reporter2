@@ -119,6 +119,24 @@
         box-shadow: 0 0 0 3px var(--shadow);
       }
 
+      input[type="number"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px var(--shadow);
+      }
+
       .checkbox-field {
         display: flex;
         align-items: center;
@@ -546,6 +564,10 @@
           <input type="checkbox" id="includeNotes" />
           <label for="includeNotes">Include notes for each task</label>
         </div>
+        <div class="input-field" style="margin-top: 12px;">
+          <label for="minTimeSpent">Minimum time to include (minutes)</label>
+          <input type="number" id="minTimeSpent" min="0" max="60" value="5" style="width: 100px;" />
+        </div>
       </div>
 
       <!-- Saved Reports Section -->
@@ -633,6 +655,7 @@
       const generateBtn = document.getElementById('generateBtn');
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
       const includeNotesCheckbox = document.getElementById('includeNotes');
+      const minTimeSpentInput = document.getElementById('minTimeSpent');
       
       // Modal elements
       const reportModal = document.getElementById('reportModal');
@@ -724,6 +747,8 @@
 
           // Process all tasks (both archived and active)
           const processedTasks = new Set(); // Track tasks to avoid duplicates
+          const minTimeMs = parseInt(minTimeSpentInput.value) * 60000; // Convert minutes to milliseconds
+          let excludedWorkLogCount = 0; // Track excluded work logs
           
           allTasks.forEach(task => {
             // Check if task has work logs
@@ -736,11 +761,16 @@
               // Check if task completion is in date range
               const isCompletionInRange = taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate);
               
-              // Get work logs within date range
+              // Get work logs within date range that meet minimum time threshold
               const workLogsInRange = hasWorkLogs 
-                ? Object.keys(task.timeSpentOnDay).filter(date => 
-                    date >= formatDate(startDate) && date <= formatDate(endDate)
-                  ).sort()
+                ? Object.keys(task.timeSpentOnDay).filter(date => {
+                    const isInRange = date >= formatDate(startDate) && date <= formatDate(endDate);
+                    const meetsMinTime = task.timeSpentOnDay[date] >= minTimeMs;
+                    if (isInRange && !meetsMinTime) {
+                      excludedWorkLogCount++;
+                    }
+                    return isInRange && meetsMinTime;
+                  }).sort()
                 : [];
               
               // If task has multiple work logs, show each work log as a separate entry
@@ -782,7 +812,14 @@
               // Check each date in the task's work logs
               Object.keys(task.timeSpentOnDay).forEach(workLogDate => {
                 // Check if work log date is in the report date range
-                if (workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate)) {
+                const isInRange = workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate);
+                const meetsMinTime = task.timeSpentOnDay[workLogDate] >= minTimeMs;
+                
+                if (isInRange && !meetsMinTime) {
+                  excludedWorkLogCount++;
+                }
+                
+                if (isInRange && meetsMinTime) {
                   if (!tasksByDate[workLogDate]) {
                     tasksByDate[workLogDate] = [];
                   }
@@ -803,6 +840,9 @@
           reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
           reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
           reportText += `**Total Tasks:** ${totalTasks}\n`;
+          if (excludedWorkLogCount > 0) {
+            reportText += `**Excluded Work Logs:** ${excludedWorkLogCount} (below ${minTimeSpentInput.value} min threshold)\n`;
+          }
           reportText += `*Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*\n\n`;
           reportText += `---\n\n`;
 

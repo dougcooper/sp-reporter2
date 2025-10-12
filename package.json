@@ -1,0 +1,22 @@
+{
+  "name": "sp-reporter",
+  "version": "1.5.0",
+  "description": "Generate, save and recall reports of completed tasks/work logs within a specified date range",
+  "main": "\"\"",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "make release",
+    "build": "make build",
+    "clean": "make clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dougcooper/sp-reporter.git"
+  },
+  "author": "doug cooper",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dougcooper/sp-reporter/issues"
+  },
+  "homepage": "https://github.com/dougcooper/sp-reporter#readme"
+}
