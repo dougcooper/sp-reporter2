@@ -6,6 +6,10 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed or worked on within the selected period
+- 🔀 **Group reports by Date or by Project** for different perspectives
+- 🏷️ Optionally show project names when grouping by date
+- 📆 Optionally show completion dates when grouping by project
+- ⏱️ Automatic time aggregation per project with totals
 - ⏳ Includes in-progress tasks that have work logs in the date range
 - 🔍 Exclude accidental or minimal time entries (default: 5 min threshold)
 - ✏️ Edit generated reports in a modal popup
@@ -31,18 +35,21 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 1. Click the "Task Report" button in the header (calendar icon)
 2. Select your desired start and end dates
-3. **Set minimum time threshold** (default: 5 minutes) to filter out accidental or very short work logs
-4. Click "Generate Report"
-5. The report will appear in a modal popup showing:
+3. **Choose grouping method:**
+   - **Group by Date** (default): Tasks organized by completion date, optionally showing project names
+   - **Group by Project**: Tasks organized by project with time totals, optionally showing completion dates
+4. **Set minimum time threshold** (default: 5 minutes) to filter out accidental or very short work logs
+5. Click "Generate Report"
+6. The report will appear in a modal popup showing:
    - Tasks grouped by date (completed tasks and tasks with work logs)
    - In-progress tasks marked with WIP indicator
    - Time spent on each task (when tracked)
    - Count of excluded work logs (if any were filtered out)
    - Optional task notes (when enabled)
-6. **Edit the report** as needed - add comments, modify content, or reorganize tasks
-7. **Save the report** with a custom name for future reference
-8. **Copy to Clipboard** to paste the report in Markdown format anywhere
-9. **Manage saved reports** in the list below the date range selection:
+7. **Edit the report** as needed - add comments, modify content, or reorganize tasks
+8. **Save the report** with a custom name for future reference
+9. **Copy to Clipboard** to paste the report in Markdown format anywhere
+10. **Manage saved reports** in the list below the date range selection:
    - Click on a saved report to view/edit it
    - Delete individual reports with the 🗑️ button
    - Select multiple reports and delete them all at once
@@ -53,13 +60,14 @@ The generated report is formatted in Markdown and includes:
 - Date range and generation timestamp
 - Total number of tasks (both completed and with work logs)
 - Count of excluded work logs (when applicable) with the threshold value
-- Tasks grouped by date with bullet points
+- Tasks grouped by date or project (user selectable)
 - Individual work log entries for tasks with multiple work logs
 - WIP indicator for work in progress entries (before task completion)
 - Time spent on each task (when tracked)
 - Optional task notes (when enabled)
 
-Example report:
+### Example Report - Grouped by Date
+
 ```markdown
 # Task Completion Report
 
@@ -73,8 +81,8 @@ Example report:
 
 ## Monday, October 1, 2024
 
-- Complete project proposal *(45 min)*
-- Review pull requests *(30 min)*
+- Complete project proposal [Project A] *(45 min)*
+- Review pull requests [Project B] *(30 min)*
   Reviewed PRs #123 and #124, left feedback on both
 
 ## Tuesday, October 2, 2024
@@ -83,18 +91,42 @@ Example report:
 
 ## Wednesday, October 3, 2024
 
-- Write documentation *(120 min)*
+- Write documentation [Project A] *(120 min)*
   Updated API docs and added examples for new endpoints
-- Refactor API endpoints *(60 min)* WIP
+- Refactor API endpoints [Project B] *(60 min)* WIP
 
 ## Thursday, October 4, 2024
 
-- Refactor API endpoints *(90 min)* WIP
+- Refactor API endpoints [Project B] *(90 min)* WIP
 
 ## Friday, October 5, 2024
 
-- Refactor API endpoints *(120 min)*
-- Fix bug in authentication *(60 min)*
+- Refactor API endpoints [Project B] *(120 min)*
+- Fix bug in authentication [Project A] *(60 min)*
+```
+
+### Example Report - Grouped by Project
+
+```markdown
+# Task Completion Report
+
+**Date Range:** Saturday, October 11, 2025 - Sunday, October 12, 2025  
+**Generated:** 10/12/2025, 10:49:35 PM  
+**Total Tasks:** 5
+*Note: Tasks are grouped by project. Time shown is the total across all days in the date range.*
+
+---
+
+## Project 1 *(total: 1h 10m)*
+
+  - aaa [Saturday, October 11, 2025] *(35m)*
+  - bbb [Saturday, October 11, 2025] *(20m)*
+  - fff [Last worked: Sunday, October 12, 2025] *(15m)* WIP
+
+## Project 2 *(total: 1h 5m)*
+
+  - ccc [Saturday, October 11, 2025] *(25m)*
+  - ddd [Saturday, October 11, 2025] *(40m)*
 ```
 
 The Markdown format makes it easy to paste into documentation, notes, or any Markdown-compatible application.

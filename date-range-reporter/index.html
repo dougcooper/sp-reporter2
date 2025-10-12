@@ -556,6 +556,21 @@
           </div>
           <button id="generateBtn">Generate Report</button>
         </div>
+        <div class="input-field" style="margin-top: 12px;">
+          <label for="groupBy">Group by</label>
+          <select id="groupBy" style="width: 200px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-light); background: var(--bg-secondary); color: var(--text-primary);">
+            <option value="date">Date</option>
+            <option value="project">Project</option>
+          </select>
+        </div>
+        <div class="checkbox-field" id="showProjectCheckbox">
+          <input type="checkbox" id="showProject" />
+          <label for="showProject">Show project name with tasks</label>
+        </div>
+        <div class="checkbox-field" id="showDateCheckbox" style="display: none;">
+          <input type="checkbox" id="showDate" />
+          <label for="showDate">Show completion date with tasks</label>
+        </div>
         <div class="checkbox-field">
           <input type="checkbox" id="excludeEmptyDates" checked />
           <label for="excludeEmptyDates">Exclude dates with no tasks</label>
@@ -653,6 +668,11 @@
       const startDateInput = document.getElementById('startDate');
       const endDateInput = document.getElementById('endDate');
       const generateBtn = document.getElementById('generateBtn');
+      const groupBySelect = document.getElementById('groupBy');
+      const showProjectCheckbox = document.getElementById('showProject');
+      const showDateCheckbox = document.getElementById('showDate');
+      const showProjectCheckboxContainer = document.getElementById('showProjectCheckbox');
+      const showDateCheckboxContainer = document.getElementById('showDateCheckbox');
       const excludeEmptyDatesCheckbox = document.getElementById('excludeEmptyDates');
       const includeNotesCheckbox = document.getElementById('includeNotes');
       const minTimeSpentInput = document.getElementById('minTimeSpent');
@@ -697,6 +717,16 @@
         return date.toLocaleDateString('en-US', options);
       }
 
+      // Format time in minutes to human readable format (e.g., "1h 30m" or "45m")
+      function formatTime(minutes) {
+        if (minutes < 60) {
+          return `${minutes}m`;
+        }
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+      }
+
       // Get all dates in range
       function getDateRange(startDate, endDate) {
         const dates = [];
@@ -709,6 +739,295 @@
         }
 
         return dates;
+      }
+
+      // Generate report grouped by date
+      function generateReportByDate(allTasks, startDate, endDate, projects, showProject) {
+        const tasksByDate = {};
+        let totalTasks = 0;
+
+        // Get all dates in range
+        const dateRange = getDateRange(formatDate(startDate), formatDate(endDate));
+        dateRange.forEach(date => {
+          tasksByDate[date] = [];
+        });
+
+        // Process all tasks (both archived and active)
+        const processedTasks = new Set(); // Track tasks to avoid duplicates
+        const minTimeMs = parseInt(minTimeSpentInput.value) * 60000; // Convert minutes to milliseconds
+        let excludedWorkLogCount = 0; // Track excluded work logs
+        
+        allTasks.forEach(task => {
+          // Check if task has work logs
+          const hasWorkLogs = task.timeSpentOnDay && Object.keys(task.timeSpentOnDay).length > 0;
+          
+          if (task.isDone && task.doneOn) {
+            const taskDate = new Date(task.doneOn);
+            const taskDateStr = formatDate(taskDate);
+            
+            // Check if task completion is in date range
+            const isCompletionInRange = taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate);
+            
+            // Get work logs within date range that meet minimum time threshold
+            const workLogsInRange = hasWorkLogs 
+              ? Object.keys(task.timeSpentOnDay).filter(date => {
+                  const isInRange = date >= formatDate(startDate) && date <= formatDate(endDate);
+                  const meetsMinTime = task.timeSpentOnDay[date] >= minTimeMs;
+                  if (isInRange && !meetsMinTime) {
+                    excludedWorkLogCount++;
+                  }
+                  return isInRange && meetsMinTime;
+                }).sort()
+              : [];
+            
+            // If task has multiple work logs, show each work log as a separate entry
+            if (workLogsInRange.length > 1) {
+              workLogsInRange.forEach(workLogDate => {
+                if (!tasksByDate[workLogDate]) {
+                  tasksByDate[workLogDate] = [];
+                }
+                
+                // Work logs before completion date get WIP indicator
+                const isWorkLogBeforeCompletion = workLogDate !== taskDateStr;
+                const taskEntry = { 
+                  ...task, 
+                  isInProgress: isWorkLogBeforeCompletion,
+                  workLogDate: workLogDate
+                };
+                tasksByDate[workLogDate].push(taskEntry);
+              });
+              
+              if (!processedTasks.has(task.id)) {
+                totalTasks++;
+                processedTasks.add(task.id);
+              }
+            }
+            // Task with one or no work logs - show normally on completion date if in range
+            else if (isCompletionInRange) {
+              if (!tasksByDate[taskDateStr]) {
+                tasksByDate[taskDateStr] = [];
+              }
+              tasksByDate[taskDateStr].push(task);
+              if (!processedTasks.has(task.id)) {
+                totalTasks++;
+                processedTasks.add(task.id);
+              }
+            }
+          }
+          // Include tasks with work logs in the date range (even if not completed)
+          else if (hasWorkLogs) {
+            // Check each date in the task's work logs
+            Object.keys(task.timeSpentOnDay).forEach(workLogDate => {
+              // Check if work log date is in the report date range
+              const isInRange = workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate);
+              const meetsMinTime = task.timeSpentOnDay[workLogDate] >= minTimeMs;
+              
+              if (isInRange && !meetsMinTime) {
+                excludedWorkLogCount++;
+              }
+              
+              if (isInRange && meetsMinTime) {
+                if (!tasksByDate[workLogDate]) {
+                  tasksByDate[workLogDate] = [];
+                }
+                // Mark task as in-progress to differentiate from completed tasks
+                const taskWithStatus = { ...task, isInProgress: true, workLogDate: workLogDate };
+                tasksByDate[workLogDate].push(taskWithStatus);
+                if (!processedTasks.has(task.id)) {
+                  totalTasks++;
+                  processedTasks.add(task.id);
+                }
+              }
+            });
+          }
+        });
+
+        // Generate report in Markdown format
+        let reportText = `# Task Completion Report\n\n`;
+        reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
+        reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
+        reportText += `**Total Tasks:** ${totalTasks}\n`;
+        if (excludedWorkLogCount > 0) {
+          reportText += `**Excluded Work Logs:** ${excludedWorkLogCount} (below ${minTimeSpentInput.value} min threshold)\n`;
+        }
+        reportText += `*Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*\n\n`;
+        reportText += `---\n\n`;
+
+        // Sort dates
+        const sortedDates = Object.keys(tasksByDate).sort();
+
+        // Filter out empty dates if checkbox is checked
+        const excludeEmpty = excludeEmptyDatesCheckbox.checked;
+        const includeNotes = includeNotesCheckbox.checked;
+        const datesToShow = excludeEmpty 
+          ? sortedDates.filter(dateStr => tasksByDate[dateStr].length > 0)
+          : sortedDates;
+
+        datesToShow.forEach(dateStr => {
+          const tasks = tasksByDate[dateStr];
+          reportText += `## ${formatDateDisplay(dateStr)}\n\n`;
+
+          if (tasks.length === 0) {
+            reportText += `*No tasks*\n\n`;
+          } else {
+            tasks.forEach((task, index) => {
+              // Use workLogDate if available, otherwise use the date from the section
+              const dateForTimeSpent = task.workLogDate || dateStr;
+              const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateForTimeSpent]
+                ? ` *(${Math.round(task.timeSpentOnDay[dateForTimeSpent] / 60000)} min)*`
+                : '';
+              // Show status indicator for in-progress tasks
+              const statusIndicator = task.isInProgress ? ' WIP' : '';
+              
+              // Optionally show project name
+              const projectName = showProject && task.projectId && projects[task.projectId] 
+                ? ` [${projects[task.projectId]}]` 
+                : '';
+              
+              reportText += `- ${task.title}${projectName}${timeSpent}${statusIndicator}\n`;
+              
+              // Include notes if checkbox is checked and task has notes
+              if (includeNotes && task.notes && task.notes.trim()) {
+                // Indent the notes for better formatting
+                const indentedNotes = task.notes.trim().split('\n').map(line => `  ${line}`).join('\n');
+                reportText += `${indentedNotes}\n`;
+              }
+            });
+            reportText += `\n`;
+          }
+        });
+
+        return { reportText, totalTasks };
+      }
+
+      // Generate report grouped by project
+      function generateReportByProject(allTasks, startDate, endDate, projects, showDate) {
+        const tasksByProject = {};
+        const processedTasks = new Set();
+        let totalTasks = 0;
+        const minTimeMs = parseInt(minTimeSpentInput.value) * 60000;
+        let excludedWorkLogCount = 0;
+
+        // Process all tasks
+        allTasks.forEach(task => {
+          const hasWorkLogs = task.timeSpentOnDay && Object.keys(task.timeSpentOnDay).length > 0;
+          
+          // Aggregate time spent on this task within the date range
+          let totalTimeSpent = 0;
+          let taskDates = [];
+          
+          if (hasWorkLogs) {
+            Object.keys(task.timeSpentOnDay).forEach(workLogDate => {
+              const isInRange = workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate);
+              if (isInRange) {
+                const timeSpent = task.timeSpentOnDay[workLogDate];
+                if (timeSpent >= minTimeMs) {
+                  totalTimeSpent += timeSpent;
+                  taskDates.push(workLogDate);
+                } else {
+                  excludedWorkLogCount++;
+                }
+              }
+            });
+          }
+          
+          // Only include tasks that have time spent in the range or are completed in the range
+          const isCompletedInRange = task.isDone && task.doneOn && 
+            formatDate(new Date(task.doneOn)) >= formatDate(startDate) && 
+            formatDate(new Date(task.doneOn)) <= formatDate(endDate);
+          
+          if ((totalTimeSpent > 0 || isCompletedInRange) && !processedTasks.has(task.id)) {
+            const projectId = task.projectId || 'no-project';
+            const projectName = projects[projectId] || 'No Project';
+            
+            if (!tasksByProject[projectId]) {
+              tasksByProject[projectId] = {
+                name: projectName,
+                tasks: [],
+                totalTime: 0
+              };
+            }
+            
+            tasksByProject[projectId].tasks.push({
+              ...task,
+              totalTimeSpent,
+              dates: taskDates,
+              isInProgress: !task.isDone
+            });
+            tasksByProject[projectId].totalTime += totalTimeSpent;
+            
+            processedTasks.add(task.id);
+            totalTasks++;
+          }
+        });
+
+        // Generate report in Markdown format
+        let reportText = `# Task Completion Report\n\n`;
+        reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
+        reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
+        reportText += `**Total Tasks:** ${totalTasks}\n`;
+        if (excludedWorkLogCount > 0) {
+          reportText += `**Excluded Work Logs:** ${excludedWorkLogCount} (below ${minTimeSpentInput.value} min threshold)\n`;
+        }
+        reportText += `*Note: Tasks are grouped by project. Time shown is the total across all days in the date range.*\n\n`;
+        reportText += `---\n\n`;
+
+        // Sort projects by name
+        const sortedProjects = Object.keys(tasksByProject).sort((a, b) => {
+          const nameA = tasksByProject[a].name.toLowerCase();
+          const nameB = tasksByProject[b].name.toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        // Filter out empty projects if checkbox is checked
+        const excludeEmpty = excludeEmptyDatesCheckbox.checked;
+        const includeNotes = includeNotesCheckbox.checked;
+        const projectsToShow = excludeEmpty 
+          ? sortedProjects.filter(projectId => tasksByProject[projectId].tasks.length > 0)
+          : sortedProjects;
+
+        projectsToShow.forEach(projectId => {
+          const project = tasksByProject[projectId];
+          const totalMinutes = Math.round(project.totalTime / 60000);
+          const formattedTime = formatTime(totalMinutes);
+          
+          reportText += `## ${project.name} *(total: ${formattedTime})*\n\n`;
+
+          if (project.tasks.length === 0) {
+            reportText += `*No tasks*\n\n`;
+          } else {
+            project.tasks.forEach(task => {
+              const timeMinutes = Math.round(task.totalTimeSpent / 60000);
+              const timeSpent = timeMinutes > 0 ? ` *(${formatTime(timeMinutes)})*` : '';
+              const statusIndicator = task.isInProgress ? ' WIP' : '';
+              
+              // Optionally show completion date
+              let dateInfo = '';
+              if (showDate) {
+                if (task.isDone && task.doneOn) {
+                  const completionDate = formatDate(new Date(task.doneOn));
+                  dateInfo = ` [${formatDateDisplay(completionDate)}]`;
+                } else if (task.dates && task.dates.length > 0) {
+                  // Show the latest work log date for WIP tasks
+                  const latestDate = task.dates.sort().pop();
+                  dateInfo = ` [Last worked: ${formatDateDisplay(latestDate)}]`;
+                }
+              }
+              
+              reportText += `  - ${task.title}${dateInfo}${timeSpent}${statusIndicator}\n`;
+              
+              // Include notes if checkbox is checked and task has notes
+              if (includeNotes && task.notes && task.notes.trim()) {
+                // Indent the notes for better formatting (extra indent for project grouping)
+                const indentedNotes = task.notes.trim().split('\n').map(line => `    ${line}`).join('\n');
+                reportText += `${indentedNotes}\n`;
+              }
+            });
+            reportText += `\n`;
+          }
+        });
+
+        return { reportText, totalTasks };
       }
 
       // Generate report
@@ -732,157 +1051,38 @@
           const archivedTasks = await PluginAPI.getArchivedTasks();
           const activeTasks = await PluginAPI.getTasks();
           
+          // Get all projects to map projectId to project name
+          const projects = {};
+          try {
+            const allProjects = await PluginAPI.getAllProjects();
+            allProjects.forEach(project => {
+              projects[project.id] = project.title;
+            });
+          } catch (e) {
+            console.warn('Could not load projects:', e);
+          }
+          
           // Combine all tasks
           const allTasks = [...archivedTasks, ...activeTasks];
 
-          // Group tasks by completion date
-          const tasksByDate = {};
-          let totalTasks = 0;
-
-          // Get all dates in range
-          const dateRange = getDateRange(startDateInput.value, endDateInput.value);
-          dateRange.forEach(date => {
-            tasksByDate[date] = [];
-          });
-
-          // Process all tasks (both archived and active)
-          const processedTasks = new Set(); // Track tasks to avoid duplicates
-          const minTimeMs = parseInt(minTimeSpentInput.value) * 60000; // Convert minutes to milliseconds
-          let excludedWorkLogCount = 0; // Track excluded work logs
+          const groupBy = groupBySelect.value;
+          const showProject = showProjectCheckbox.checked;
+          const showDate = showDateCheckbox.checked;
           
-          allTasks.forEach(task => {
-            // Check if task has work logs
-            const hasWorkLogs = task.timeSpentOnDay && Object.keys(task.timeSpentOnDay).length > 0;
-            
-            if (task.isDone && task.doneOn) {
-              const taskDate = new Date(task.doneOn);
-              const taskDateStr = formatDate(taskDate);
-              
-              // Check if task completion is in date range
-              const isCompletionInRange = taskDateStr >= formatDate(startDate) && taskDateStr <= formatDate(endDate);
-              
-              // Get work logs within date range that meet minimum time threshold
-              const workLogsInRange = hasWorkLogs 
-                ? Object.keys(task.timeSpentOnDay).filter(date => {
-                    const isInRange = date >= formatDate(startDate) && date <= formatDate(endDate);
-                    const meetsMinTime = task.timeSpentOnDay[date] >= minTimeMs;
-                    if (isInRange && !meetsMinTime) {
-                      excludedWorkLogCount++;
-                    }
-                    return isInRange && meetsMinTime;
-                  }).sort()
-                : [];
-              
-              // If task has multiple work logs, show each work log as a separate entry
-              if (workLogsInRange.length > 1) {
-                workLogsInRange.forEach(workLogDate => {
-                  if (!tasksByDate[workLogDate]) {
-                    tasksByDate[workLogDate] = [];
-                  }
-                  
-                  // Work logs before completion date get WIP indicator
-                  const isWorkLogBeforeCompletion = workLogDate !== taskDateStr;
-                  const taskEntry = { 
-                    ...task, 
-                    isInProgress: isWorkLogBeforeCompletion,
-                    workLogDate: workLogDate
-                  };
-                  tasksByDate[workLogDate].push(taskEntry);
-                });
-                
-                if (!processedTasks.has(task.id)) {
-                  totalTasks++;
-                  processedTasks.add(task.id);
-                }
-              }
-              // Task with one or no work logs - show normally on completion date if in range
-              else if (isCompletionInRange) {
-                if (!tasksByDate[taskDateStr]) {
-                  tasksByDate[taskDateStr] = [];
-                }
-                tasksByDate[taskDateStr].push(task);
-                if (!processedTasks.has(task.id)) {
-                  totalTasks++;
-                  processedTasks.add(task.id);
-                }
-              }
-            }
-            // Include tasks with work logs in the date range (even if not completed)
-            else if (hasWorkLogs) {
-              // Check each date in the task's work logs
-              Object.keys(task.timeSpentOnDay).forEach(workLogDate => {
-                // Check if work log date is in the report date range
-                const isInRange = workLogDate >= formatDate(startDate) && workLogDate <= formatDate(endDate);
-                const meetsMinTime = task.timeSpentOnDay[workLogDate] >= minTimeMs;
-                
-                if (isInRange && !meetsMinTime) {
-                  excludedWorkLogCount++;
-                }
-                
-                if (isInRange && meetsMinTime) {
-                  if (!tasksByDate[workLogDate]) {
-                    tasksByDate[workLogDate] = [];
-                  }
-                  // Mark task as in-progress to differentiate from completed tasks
-                  const taskWithStatus = { ...task, isInProgress: true, workLogDate: workLogDate };
-                  tasksByDate[workLogDate].push(taskWithStatus);
-                  if (!processedTasks.has(task.id)) {
-                    totalTasks++;
-                    processedTasks.add(task.id);
-                  }
-                }
-              });
-            }
-          });
-
-          // Generate report in Markdown format
-          let reportText = `# Task Completion Report\n\n`;
-          reportText += `**Date Range:** ${formatDateDisplay(formatDate(startDate))} - ${formatDateDisplay(formatDate(endDate))}  \n`;
-          reportText += `**Generated:** ${new Date().toLocaleString()}  \n`;
-          reportText += `**Total Tasks:** ${totalTasks}\n`;
-          if (excludedWorkLogCount > 0) {
-            reportText += `**Excluded Work Logs:** ${excludedWorkLogCount} (below ${minTimeSpentInput.value} min threshold)\n`;
+          let reportText = '';
+          let totalTasks = 0;
+          
+          if (groupBy === 'date') {
+            // Group by date logic (existing logic with optional project display)
+            const result = generateReportByDate(allTasks, startDate, endDate, projects, showProject);
+            reportText = result.reportText;
+            totalTasks = result.totalTasks;
+          } else {
+            // Group by project logic
+            const result = generateReportByProject(allTasks, startDate, endDate, projects, showDate);
+            reportText = result.reportText;
+            totalTasks = result.totalTasks;
           }
-          reportText += `*Note: Individual work log entries are shown for tasks with multiple work logs. WIP indicates work in progress.*\n\n`;
-          reportText += `---\n\n`;
-
-          // Sort dates
-          const sortedDates = Object.keys(tasksByDate).sort();
-
-          // Filter out empty dates if checkbox is checked
-          const excludeEmpty = excludeEmptyDatesCheckbox.checked;
-          const includeNotes = includeNotesCheckbox.checked;
-          const datesToShow = excludeEmpty 
-            ? sortedDates.filter(dateStr => tasksByDate[dateStr].length > 0)
-            : sortedDates;
-
-          datesToShow.forEach(dateStr => {
-            const tasks = tasksByDate[dateStr];
-            reportText += `## ${formatDateDisplay(dateStr)}\n\n`;
-
-            if (tasks.length === 0) {
-              reportText += `*No tasks*\n\n`;
-            } else {
-              tasks.forEach((task, index) => {
-                // Use workLogDate if available, otherwise use the date from the section
-                const dateForTimeSpent = task.workLogDate || dateStr;
-                const timeSpent = task.timeSpentOnDay && task.timeSpentOnDay[dateForTimeSpent]
-                  ? ` *(${Math.round(task.timeSpentOnDay[dateForTimeSpent] / 60000)} min)*`
-                  : '';
-                // Show status indicator for in-progress tasks
-                const statusIndicator = task.isInProgress ? ' WIP' : '';
-                reportText += `- ${task.title}${timeSpent}${statusIndicator}\n`;
-                
-                // Include notes if checkbox is checked and task has notes
-                if (includeNotes && task.notes && task.notes.trim()) {
-                  // Indent the notes for better formatting
-                  const indentedNotes = task.notes.trim().split('\n').map(line => `  ${line}`).join('\n');
-                  reportText += `${indentedNotes}\n`;
-                }
-              });
-              reportText += `\n`;
-            }
-          });
 
           // Store report data and show modal
           currentReport = {
@@ -1141,6 +1341,19 @@
       modalCopyBtn.addEventListener('click', copyFromModal);
       modalSaveBtn.addEventListener('click', saveReport);
       deleteSelectedBtn.addEventListener('click', deleteSelectedReports);
+
+      // Handle groupBy change to show/hide appropriate checkboxes
+      groupBySelect.addEventListener('change', () => {
+        if (groupBySelect.value === 'date') {
+          showProjectCheckboxContainer.style.display = 'flex';
+          showDateCheckboxContainer.style.display = 'none';
+          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude dates with no tasks';
+        } else {
+          showProjectCheckboxContainer.style.display = 'none';
+          showDateCheckboxContainer.style.display = 'flex';
+          excludeEmptyDatesCheckbox.parentElement.querySelector('label').textContent = 'Exclude projects with no tasks';
+        }
+      });
 
       // Close modal on overlay click
       reportModal.addEventListener('click', (e) => {
