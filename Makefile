@@ -3,7 +3,8 @@
 
 PLUGIN_DIR = date-range-reporter
 ZIP_FILE = date-range-reporter.zip
-VERSION := $(shell grep '"version"' $(PLUGIN_DIR)/manifest.json | sed 's/.*"version": "\(.*\)".*/\1/')
+VERSION := $(shell grep '"version"' package.json | sed 's/.*"version": "\(.*\)".*/\1/')
+DESCRIPTION := $(shell grep '"description"' package.json | sed 's/.*"description": "\(.*\)".*/\1/')
 RELEASE_FILE = date-range-reporter-v$(VERSION).zip
 
 .PHONY: build clean help release release-check
@@ -11,13 +12,16 @@ RELEASE_FILE = date-range-reporter-v$(VERSION).zip
 # Default target
 build: clean
 	@echo "Building plugin zip file..."
-	@cd $(PLUGIN_DIR) && zip -r ../$(ZIP_FILE) .
+	@echo "Generating manifest.json from template..."
+	@sed -e 's/{{VERSION}}/$(VERSION)/g' -e 's/{{DESCRIPTION}}/$(DESCRIPTION)/g' \
+		$(PLUGIN_DIR)/manifest.json.template > $(PLUGIN_DIR)/manifest.json
+	@cd $(PLUGIN_DIR) && zip -r ../$(ZIP_FILE) . -x "manifest.json.template"
 	@echo "✓ Plugin packaged successfully: $(ZIP_FILE)"
 
 # Clean up generated files
 clean:
 	@echo "Cleaning up..."
-	@rm -f $(ZIP_FILE) date-range-reporter-v*.zip
+	@rm -f $(ZIP_FILE) date-range-reporter-v*.zip $(PLUGIN_DIR)/manifest.json
 	@echo "✓ Cleaned"
 
 # Pre-release checks

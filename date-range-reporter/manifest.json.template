@@ -1,8 +1,8 @@
 {
   "id": "date-range-reporter",
   "name": "Date Range Reporter",
-  "version": "1.5.0",
-  "description": "Generate and save reports of completed tasks and tasks with work logs within a specified date range",
+  "version": "{{VERSION}}",
+  "description": "{{DESCRIPTION}}",
   "manifestVersion": 1,
   "minSupVersion": "14.0.0",
   "author": "Super Productivity Community",
