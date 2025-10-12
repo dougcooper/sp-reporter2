@@ -66,6 +66,7 @@ release: release-check build
 	@gh release create "v$(VERSION)" \
 		--title "v$(VERSION)" \
 		--notes "Release v$(VERSION) of Date Range Reporter plugin" \
+		--generate-notes \
 		$(ZIP_FILE)
 	@echo ""
 	@echo "════════════════════════════════════════════════════════════"

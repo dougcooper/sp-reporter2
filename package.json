@@ -4,7 +4,10 @@
   "description": "Generate, save and recall reports of completed tasks/work logs within a specified date range",
   "main": "\"\"",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "make release",
+    "build": "make build",
+    "clean": "make clean"
   },
   "repository": {
     "type": "git",
@@ -15,8 +18,5 @@
   "bugs": {
     "url": "https://github.com/dougcooper/sp-reporter/issues"
   },
-  "homepage": "https://github.com/dougcooper/sp-reporter#readme",
-  "devDependencies": {
-    "release-it": "^19.0.5"
-  }
+  "homepage": "https://github.com/dougcooper/sp-reporter#readme"
 }
