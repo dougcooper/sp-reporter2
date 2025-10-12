@@ -7,7 +7,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 - 📅 Select custom date ranges for reporting
 - 📊 View all tasks completed or worked on within the selected period
 - ⏳ Includes in-progress tasks that have work logs in the date range
-- 🔍 **Filter out short work logs** - Exclude accidental or minimal time entries (default: 5 min threshold)
+- 🔍 Exclude accidental or minimal time entries (default: 5 min threshold)
 - ✏️ Edit generated reports in a modal popup
 - 💾 Save reports for future reference
 - 📋 Copy report to clipboard with one click
