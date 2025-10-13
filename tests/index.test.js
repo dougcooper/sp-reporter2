@@ -19,6 +19,7 @@ describe('Date Range Reporter', () => {
     mockPluginAPI = {
       getTasks: vi.fn().mockResolvedValue([]),
       getArchivedTasks: vi.fn().mockResolvedValue([]),
+      getAllProjects: vi.fn().mockResolvedValue([]),
       persistDataSynced: vi.fn().mockResolvedValue(undefined),
       loadSyncedData: vi.fn().mockResolvedValue(null),
       showSnack: vi.fn(),
@@ -538,9 +539,9 @@ describe('Date Range Reporter', () => {
 
       expect(mockPluginAPI.persistDataSynced).toHaveBeenCalled();
       const savedData = JSON.parse(mockPluginAPI.persistDataSynced.mock.calls[0][0]);
-      expect(savedData).toHaveLength(1);
-      expect(savedData[0].name).toContain('Report');
-      expect(savedData[0].name).toContain('Monday, January 15, 2024');
+      expect(savedData.reports).toHaveLength(1);
+      expect(savedData.reports[0].name).toContain('Report');
+      expect(savedData.reports[0].name).toContain('Monday, January 15, 2024');
     });
 
     it('should save a new report with custom name', async () => {
@@ -570,8 +571,8 @@ describe('Date Range Reporter', () => {
 
       expect(mockPluginAPI.persistDataSynced).toHaveBeenCalled();
       const savedData = JSON.parse(mockPluginAPI.persistDataSynced.mock.calls[0][0]);
-      expect(savedData).toHaveLength(1);
-      expect(savedData[0].name).toBe('My Custom Report');
+      expect(savedData.reports).toHaveLength(1);
+      expect(savedData.reports[0].name).toBe('My Custom Report');
     });
 
     it('should update an existing report', async () => {
@@ -587,7 +588,7 @@ describe('Date Range Reporter', () => {
         savedAt: new Date().toISOString()
       };
       
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify([existingReport]));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: [existingReport] }));
       await window.loadReports();
 
       // View the report to set up editing mode
@@ -603,10 +604,10 @@ describe('Date Range Reporter', () => {
 
       expect(mockPluginAPI.persistDataSynced).toHaveBeenCalled();
       const savedData = JSON.parse(mockPluginAPI.persistDataSynced.mock.calls[0][0]);
-      expect(savedData).toHaveLength(1);
-      expect(savedData[0].name).toBe('Updated Report');
-      expect(savedData[0].content).toBe('Updated content');
-      expect(savedData[0].updatedAt).toBeDefined();
+      expect(savedData.reports).toHaveLength(1);
+      expect(savedData.reports[0].name).toBe('Updated Report');
+      expect(savedData.reports[0].content).toBe('Updated content');
+      expect(savedData.reports[0].updatedAt).toBeDefined();
     });
 
     it('should load saved reports from storage', async () => {
@@ -622,7 +623,15 @@ describe('Date Range Reporter', () => {
         }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      const mockData = {
+        reports: mockReports,
+        preferences: {
+          groupBy: 'date',
+          excludeEmptyDates: true
+        }
+      };
+
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockData));
 
       await window.loadReports();
 
@@ -653,7 +662,7 @@ describe('Date Range Reporter', () => {
         }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: mockReports }));
       await window.loadReports();
 
       const reportsList = document.getElementById('savedReportsList');
@@ -685,7 +694,7 @@ describe('Date Range Reporter', () => {
         }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: mockReports }));
       await window.loadReports();
 
       window.viewReport('1');
@@ -719,7 +728,7 @@ describe('Date Range Reporter', () => {
         }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: mockReports }));
       await window.loadReports();
 
       await window.deleteReport('1');
@@ -746,7 +755,7 @@ describe('Date Range Reporter', () => {
         }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: mockReports }));
       await window.loadReports();
 
       await window.deleteReport('1');
@@ -766,7 +775,7 @@ describe('Date Range Reporter', () => {
         { id: '3', name: 'Report 3', content: 'C3', startDate: '2024-01-17', endDate: '2024-01-17', totalTasks: 3, savedAt: new Date().toISOString() }
       ];
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockReports));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: mockReports }));
       await window.loadReports();
 
       // Simulate checking multiple checkboxes
@@ -881,7 +890,7 @@ describe('Date Range Reporter', () => {
         savedAt: new Date().toISOString()
       };
 
-      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify([mockReport]));
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify({ reports: [mockReport] }));
       await window.loadReports();
 
       // View the saved report
@@ -1100,6 +1109,172 @@ describe('Date Range Reporter', () => {
 
       // Should not crash
       await expect(window.generateReport()).resolves.not.toThrow();
+    });
+  });
+
+  describe('User Preferences', () => {
+    it('should have preferences modal elements', () => {
+      expect(document.getElementById('preferencesModal')).toBeTruthy();
+      expect(document.getElementById('groupBy')).toBeTruthy();
+      expect(document.getElementById('showProject')).toBeTruthy();
+      expect(document.getElementById('showDate')).toBeTruthy();
+      expect(document.getElementById('minTimeSpent')).toBeTruthy();
+    });
+
+    it('should save preferences with reports', async () => {
+      // Generate a report first
+      mockPluginAPI.getTasks.mockResolvedValue([
+        {
+          id: 'task-1',
+          title: 'Test Task',
+          isDone: true,
+          doneOn: new Date('2024-01-15T14:00:00').getTime(),
+          timeSpentOnDay: { '2024-01-15': 3600000 }
+        }
+      ]);
+
+      const startInput = document.getElementById('startDate');
+      const endInput = document.getElementById('endDate');
+      startInput.value = '2024-01-15';
+      endInput.value = '2024-01-15';
+
+      await window.generateReport();
+      await window.saveReport();
+
+      expect(mockPluginAPI.persistDataSynced).toHaveBeenCalled();
+      const savedData = JSON.parse(mockPluginAPI.persistDataSynced.mock.calls[0][0]);
+      expect(savedData.preferences).toBeDefined();
+      expect(savedData.preferences.groupBy).toBeDefined();
+      expect(savedData.preferences.minTimeSpent).toBeDefined();
+    });
+
+    it('should load preferences from storage', async () => {
+      const mockData = {
+        reports: [],
+        preferences: {
+          groupBy: 'project',
+          showProject: true,
+          excludeEmptyDates: false,
+          minTimeSpent: 10
+        }
+      };
+
+      mockPluginAPI.loadSyncedData.mockResolvedValue(JSON.stringify(mockData));
+      await window.loadReports();
+
+      // Preferences should be applied to UI
+      const groupBy = document.getElementById('groupBy');
+      const showProject = document.getElementById('showProject');
+      const minTimeSpent = document.getElementById('minTimeSpent');
+      
+      expect(groupBy.value).toBe('project');
+      expect(showProject.checked).toBe(true);
+      expect(parseInt(minTimeSpent.value)).toBe(10);
+    });
+
+    it('should filter tasks by minimum time spent', async () => {
+      const tasks = [
+        {
+          id: 'task-1',
+          title: 'Short Task',
+          isDone: true,
+          doneOn: new Date('2024-01-15T14:00:00').getTime(),
+          timeSpentOnDay: { '2024-01-15': 60000 } // 1 minute (should be filtered out)
+        },
+        {
+          id: 'task-2',
+          title: 'Long Task',
+          isDone: true,
+          doneOn: new Date('2024-01-15T14:00:00').getTime(),
+          timeSpentOnDay: { '2024-01-15': 600000 } // 10 minutes (should be included)
+        }
+      ];
+
+      mockPluginAPI.getTasks.mockResolvedValue(tasks);
+
+      const startInput = document.getElementById('startDate');
+      const endInput = document.getElementById('endDate');
+      const minTimeSpent = document.getElementById('minTimeSpent');
+      
+      startInput.value = '2024-01-15';
+      endInput.value = '2024-01-15';
+      minTimeSpent.value = '5'; // 5 minute minimum
+
+      await window.generateReport();
+
+      const modalContent = document.getElementById('modalReportContent');
+      const reportText = modalContent.value;
+      
+      // Report should show excluded work logs count
+      expect(reportText).toContain('**Excluded Work Logs:**');
+      expect(reportText).toContain('below 5 min threshold');
+      // Both tasks are included, but work logs are noted as filtered
+      expect(reportText).toContain('Short Task');
+      expect(reportText).toContain('Long Task');
+    });
+
+    it('should support project-based grouping', async () => {
+      const tasks = [
+        {
+          id: 'task-1',
+          title: 'Task A',
+          projectId: 'project-1',
+          isDone: true,
+          doneOn: new Date('2024-01-15T14:00:00').getTime(),
+          timeSpentOnDay: { '2024-01-15': 3600000 }
+        },
+        {
+          id: 'task-2',
+          title: 'Task B',
+          projectId: 'project-1',
+          isDone: true,
+          doneOn: new Date('2024-01-15T14:00:00').getTime(),
+          timeSpentOnDay: { '2024-01-15': 1800000 }
+        }
+      ];
+
+      // Mock getProjects
+      mockPluginAPI.getAllProjects.mockResolvedValue([
+        { id: 'project-1', title: 'Project Alpha' }
+      ]);
+
+      mockPluginAPI.getTasks.mockResolvedValue(tasks);
+
+      const startInput = document.getElementById('startDate');
+      const endInput = document.getElementById('endDate');
+      const groupBy = document.getElementById('groupBy');
+      
+      startInput.value = '2024-01-15';
+      endInput.value = '2024-01-15';
+      groupBy.value = 'project';
+      groupBy.dispatchEvent(new window.Event('change', { bubbles: true }));
+
+      await window.generateReport();
+
+      const modalContent = document.getElementById('modalReportContent');
+      const reportText = modalContent.value;
+      
+      // Should have tasks grouped by project
+      expect(reportText).toContain('Task A');
+      expect(reportText).toContain('Task B');
+    });
+
+    it('should toggle groupBy options visibility', () => {
+      const groupBy = document.getElementById('groupBy');
+      const showProjectContainer = document.getElementById('showProjectCheckbox');
+      const showDateContainer = document.getElementById('showDateCheckbox');
+
+      // When groupBy is 'date', showProject should be visible
+      groupBy.value = 'date';
+      groupBy.dispatchEvent(new window.Event('change', { bubbles: true }));
+      
+      // When groupBy is 'project', showDate should be visible
+      groupBy.value = 'project';
+      groupBy.dispatchEvent(new window.Event('change', { bubbles: true }));
+      
+      // Both containers should exist
+      expect(showProjectContainer).toBeTruthy();
+      expect(showDateContainer).toBeTruthy();
     });
   });
 });
