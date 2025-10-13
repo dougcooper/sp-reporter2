@@ -1,6 +1,6 @@
 {
   "name": "sp-reporter",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Generate, save and recall reports of completed tasks/work logs within a specified date range",
   "main": "\"\"",
   "scripts": {
