@@ -2,3 +2,8 @@
 test-plugin.html
 node_modules/
 date-range-reporter/manifest.json
+coverage/
+.vitest/
+*.log
+dist/
+.DS_Store

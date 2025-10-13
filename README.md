@@ -139,6 +139,35 @@ The Markdown format makes it easy to paste into documentation, notes, or any Mar
 
 ## Development
 
+### Testing
+
+The plugin includes unit tests using Vitest. The tests use JSDOM to load the actual `date-range-reporter/index.html` file with a mocked PluginAPI, ensuring the production code is tested directly.
+
+#### Running Tests
+
+```bash
+# Run tests once
+npm test
+
+# Or using make
+make test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+#### Test Coverage
+
+The test suite validates:
+- Date utility functions (formatting, display, range generation)
+- Report generation and validation
+- Plugin integration with mocked PluginAPI
+- Theme detection
+- UI helper functions
+
 ### Building the Plugin
 
 ```bash
