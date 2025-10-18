@@ -24,7 +24,7 @@ A plugin for [Super Productivity](https://super-productivity.com) that generates
 
 ## Installation
 
-1. Download the plugin files
+1. Download the plugin files for the latest [Release](https://github.com/dougcooper/sp-reporter/releases)
 2. Open Super Productivity
 3. Go to Settings → Plugins
 4. Click "Load Plugin from Folder"
